@@ -1,12 +1,13 @@
-import { OceanBackground } from '@/components/ocean-background';
 import { SoFProcessor } from '@/components/sof-processor';
 import { AiAssistant } from '@/components/ai-assistant';
 import { Anchor } from 'lucide-react';
+import { ClientOceanBackground } from '@/components/client-ocean-background';
+
 
 export default function Home() {
   return (
     <div className="relative min-h-screen w-full bg-background">
-      <OceanBackground />
+      <ClientOceanBackground />
       <main className="relative z-10 flex flex-col p-4 md:p-8">
         <header className="w-full max-w-7xl mx-auto flex items-center justify-between p-4 mb-8">
           <div className="flex items-center gap-3">
