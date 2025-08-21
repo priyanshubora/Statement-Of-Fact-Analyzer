@@ -21,12 +21,12 @@ const PortEventSchema = z.object({
   remark: z.string().optional(),
 });
 
-export const SummarizePortEventsInputSchema = z.object({
+const SummarizePortEventsInputSchema = z.object({
   events: z.array(PortEventSchema).describe('An array of port operation events extracted from the SoF.'),
 });
 export type SummarizePortEventsInput = z.infer<typeof SummarizePortEventsInputSchema>;
 
-export const SummarizePortEventsOutputSchema = z.object({
+const SummarizePortEventsOutputSchema = z.object({
   summary: z.string().describe('A concise, bulleted summary of the key insights from the port events.'),
 });
 export type SummarizePortEventsOutput = z.infer<typeof SummarizePortEventsOutputSchema>;
