@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { SoFProcessor } from '@/components/sof-processor';
 import { FloatingAiAssistant } from '@/components/floating-ai-assistant';
-import { Anchor, ArrowLeft, LogOut } from 'lucide-react';
+import { Anchor, ArrowLeft } from 'lucide-react';
 import { ClientOceanBackground } from '@/components/client-ocean-background';
 import type { ExtractPortOperationEventsOutput } from '@/ai/flows/extract-port-operation-events';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -13,14 +13,11 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { AnalyticsDashboard } from '@/components/analytics-dashboard';
 import { Button } from '@/components/ui/button';
 import { ExtractedEventsView } from '@/components/extracted-events-view';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { useAuth } from '@/components/auth-provider';
+import { Card } from '@/components/ui/card';
 
 
 export default function Home() {
   const [extractedData, setExtractedData] = useState<ExtractPortOperationEventsOutput | null>(null);
-  const { user, signOut } = useAuth();
-
 
   const handleDataExtracted = (data: ExtractPortOperationEventsOutput) => {
     setExtractedData(data);
@@ -42,14 +39,6 @@ export default function Home() {
             <h1 className="text-2xl font-bold text-primary md:text-3xl">SOFA</h1>
           </div>
            <div className="flex items-center gap-4">
-              {user && (
-                <div className='text-right'>
-                  <p className="text-sm font-medium">{user.displayName || user.email}</p>
-                  <Button variant="link" className="p-0 h-auto text-xs text-muted-foreground" onClick={signOut}>
-                    Sign Out <LogOut className="ml-2 h-3 w-3" />
-                  </Button>
-                </div>
-              )}
               <ThemeToggle />
           </div>
         </header>
