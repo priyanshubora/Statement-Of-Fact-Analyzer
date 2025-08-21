@@ -14,7 +14,7 @@ export default function Home() {
             <div className="bg-primary p-2 rounded-md shadow-md">
               <Anchor className="h-6 w-6 text-primary-foreground" />
             </div>
-            <h1 className="text-2xl font-bold text-primary md:text-3xl">SoF Laytime Pilot</h1>
+            <h1 className="text-2xl font-bold text-primary md:text-3xl">SOFA</h1>
           </div>
         </header>
         <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 flex-1">

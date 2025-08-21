@@ -10,7 +10,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'SoF Laytime Pilot',
+  title: 'SOFA',
   description: 'Laytime Intelligence & Analytics Platform',
 };
 

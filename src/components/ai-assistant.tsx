@@ -18,7 +18,7 @@ export function AiAssistant() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Hello! I'm the SoF Laytime Pilot assistant. How can I help you get started?"
+      content: "Hello! I'm the SOFA assistant. How can I help you get started?"
     }
   ]);
   const [input, setInput] = useState("");
@@ -69,7 +69,7 @@ export function AiAssistant() {
           <span>AI Assistant</span>
         </CardTitle>
         <CardDescription>
-          Ask me anything about how to use the SoF Laytime Pilot platform.
+          Ask me anything about how to use the SOFA platform.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col gap-4 overflow-hidden">

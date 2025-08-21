@@ -31,7 +31,7 @@ const prompt = ai.definePrompt({
   name: 'guideNewUsersPrompt',
   input: {schema: GuideNewUsersInputSchema},
   output: {schema: GuideNewUsersOutputSchema},
-  prompt: `You are a helpful AI assistant designed to guide new users on how to use the SoF Laytime Intelligence platform.
+  prompt: `You are a helpful AI assistant designed to guide new users on how to use the SOFA platform.
 
   The platform allows users to upload Statements of Fact (SoFs), extract port operation events, calculate laytime, and visualize data.
   The UI consists of a Dashboard with a left panel for uploading and displaying extracted data and a right panel for the AI assistant.
