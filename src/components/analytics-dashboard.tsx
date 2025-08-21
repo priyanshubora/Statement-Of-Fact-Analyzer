@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/card"
 import {
   ChartContainer,
-  ChartTooltipContent,
 } from "@/components/ui/chart"
 import type { ExtractPortOperationEventsOutput } from "@/ai/flows/extract-port-operation-events";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
@@ -62,10 +61,11 @@ export function AnalyticsDashboard({ extractedData }: AnalyticsDashboardProps) {
 
   const chartConfig = React.useMemo(() => {
     const config: any = {};
-    chartData.forEach(item => {
-        config[item.category] = {
-            label: item.category,
-            color: item.fill,
+    const categories = new Set(chartData.map(item => item.category));
+    categories.forEach(category => {
+        config[category] = {
+            label: category,
+            color: CATEGORY_COLORS[category] || CATEGORY_COLORS['Default'],
         };
     });
     return config;
@@ -101,10 +101,11 @@ export function AnalyticsDashboard({ extractedData }: AnalyticsDashboardProps) {
                         layout="vertical"
                         data={chartData}
                         margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                        stackOffset="expand"
                     >
                         <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                         <XAxis type="number" domain={['dataMin', 'dataMax + 2']} unit="h" />
-                        <YAxis dataKey="name" type="category" width={150} tickLine={false} axisLine={false} />
+                        <YAxis dataKey="name" type="category" width={150} tickLine={false} axisLine={false} interval={0} />
                         <Tooltip
                             cursor={{ fill: 'hsl(var(--muted))' }}
                             content={({ active, payload }) => {
@@ -114,7 +115,7 @@ export function AnalyticsDashboard({ extractedData }: AnalyticsDashboardProps) {
                                         <div className="rounded-lg border bg-background p-2 shadow-sm">
                                             <div className="grid grid-cols-1 gap-2">
                                                 <div className="flex flex-col">
-                                                    <span className="text-[0.70rem] uppercase text-muted-foreground">{data.category}</span>
+                                                    <span className="text-[0.70rem] uppercase text-muted-foreground" style={{color: data.fill}}>{data.category}</span>
                                                     <span className="font-bold text-foreground">{data.name}</span>
                                                 </div>
                                                 <p className="text-sm text-muted-foreground">
@@ -127,24 +128,24 @@ export function AnalyticsDashboard({ extractedData }: AnalyticsDashboardProps) {
                                 return null
                             }}
                         />
-                        <Legend />
-                         <Bar dataKey="time" name="Event" barSize={20}>
+                        <Legend content={({ payload }) => {
+                            const uniqueCategories = Array.from(new Set(payload?.map(p => p.payload?.category)));
+                            return (
+                                <div className="flex flex-wrap justify-center gap-4 mt-4">
+                                {uniqueCategories.map((category) => (
+                                    <div key={category} className="flex items-center gap-2">
+                                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: CATEGORY_COLORS[category] || CATEGORY_COLORS['Default'] }} />
+                                        <span className="text-sm text-muted-foreground">{category}</span>
+                                    </div>
+                                ))}
+                                </div>
+                            );
+                        }} />
+                         <Bar dataKey="time" name="Event" barSize={20} radius={[4, 4, 4, 4]}>
                             {chartData.map((entry, index) => (
-                                <YAxis key={`cell-${index}`} fill={entry.fill} />
+                                 <YAxis key={`cell-${index}`} fill={entry.fill} />
                             ))}
                         </Bar>
-                         {Object.keys(chartConfig).map((key) => (
-                            <Bar key={key} dataKey={key} fill={chartConfig[key].color} name={key} stackId="a" hide />
-                        ))}
-                         {chartData.map((entry, index) => (
-                            <Bar
-                                key={`bar-${index}`}
-                                dataKey="time"
-                                fill={entry.fill}
-                                name={entry.name}
-                                stackId="events"
-                            />
-                        ))}
                     </BarChart>
                 </ChartContainer>
             </CardContent>
