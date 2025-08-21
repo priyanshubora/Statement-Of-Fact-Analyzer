@@ -1,20 +1,11 @@
 
 "use client";
 
-import { useCallback } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { useCallback, useState } from "react";
 import * as mammoth from "mammoth";
 
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
+
 import { useToast } from "@/hooks/use-toast";
 import { extractPortOperationEvents } from "@/ai/flows/extract-port-operation-events";
 import type { ExtractPortOperationEventsOutput } from "@/ai/flows/extract-port-operation-events";
@@ -23,29 +14,21 @@ import { Loader2, FileText, UploadCloud, File as FileIcon, X } from "lucide-reac
 import { useDropzone } from "react-dropzone";
 import { cn } from "@/lib/utils";
 
-const FormSchema = z.object({
-  sofFile: z.instanceof(File).refine(file => file.size > 0, "Please upload a file."),
-});
-
 interface SoFProcessorProps {
   onDataExtracted: (data: ExtractPortOperationEventsOutput) => void;
 }
 
 export function SoFProcessor({ onDataExtracted }: SoFProcessorProps) {
   const { toast } = useToast();
+  const [file, setFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
-  });
-  
-  const { setValue, watch, formState: { isSubmitting }, reset } = form;
-  const watchedFile = watch("sofFile");
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
-      setValue("sofFile", acceptedFiles[0], { shouldValidate: true });
+      setFile(acceptedFiles[0]);
     }
-  }, [setValue]);
+  }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -78,9 +61,20 @@ export function SoFProcessor({ onDataExtracted }: SoFProcessorProps) {
     });
   };
 
-  async function onSubmit(data: z.infer<typeof FormSchema>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!file) {
+      toast({
+        variant: "destructive",
+        title: "No File Selected",
+        description: "Please upload a file to process.",
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
     try {
-      const textContent = await fileToText(data.sofFile);
+      const textContent = await fileToText(file);
       const result = await extractPortOperationEvents({ sofContent: textContent });
       if (result && result.events && result.vesselName) {
         onDataExtracted(result);
@@ -99,11 +93,13 @@ export function SoFProcessor({ onDataExtracted }: SoFProcessorProps) {
         title: "Extraction Failed",
         description: e.message || "Could not extract events. Please check the file and try again.",
       });
+    } finally {
+        setIsSubmitting(false);
     }
   }
 
   const handleClear = () => {
-    reset({ sofFile: undefined });
+    setFile(null);
   };
 
   return (
@@ -118,39 +114,27 @@ export function SoFProcessor({ onDataExtracted }: SoFProcessorProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0 mt-6">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="sofFile"
-              render={() => (
-                <FormItem>
-                  <FormControl>
-                      <div {...getRootProps()} className={cn("relative flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-muted/20 hover:bg-muted/40 transition-colors", isDragActive && "border-primary bg-primary/10")}>
-                          <input {...getInputProps()} />
-                          <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center">
-                              <UploadCloud className="w-10 h-10 mb-4 text-muted-foreground" />
-                              {isDragActive ? (
-                                  <p className="font-semibold text-primary">Drop the file here...</p>
-                              ) : (
-                                  <>
-                                      <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-                                      <p className="text-xs text-muted-foreground">Supports DOCX, PDF, or TXT files</p>
-                                  </>
-                              )}
-                          </div>
-                      </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <div {...getRootProps()} className={cn("relative flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-muted/20 hover:bg-muted/40 transition-colors", isDragActive && "border-primary bg-primary/10")}>
+                <input {...getInputProps()} />
+                <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center">
+                    <UploadCloud className="w-10 h-10 mb-4 text-muted-foreground" />
+                    {isDragActive ? (
+                        <p className="font-semibold text-primary">Drop the file here...</p>
+                    ) : (
+                        <>
+                            <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                            <p className="text-xs text-muted-foreground">Supports DOCX, PDF, or TXT files</p>
+                        </>
+                    )}
+                </div>
+            </div>
 
-            {watchedFile && watchedFile.size > 0 ? (
+            {file && file.size > 0 ? (
               <div className="flex items-center justify-between p-2 mt-2 text-sm rounded-md border bg-card">
                 <div className="flex items-center gap-2 overflow-hidden">
                   <FileIcon className="h-5 w-5 text-muted-foreground shrink-0" />
-                  <span className="font-medium truncate">{watchedFile.name}</span>
+                  <span className="font-medium truncate">{file.name}</span>
                 </div>
                 <Button
                   type="button"
@@ -164,12 +148,11 @@ export function SoFProcessor({ onDataExtracted }: SoFProcessorProps) {
               </div>
             ) : null}
 
-            <Button type="submit" disabled={isSubmitting || !watchedFile} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+            <Button type="submit" disabled={isSubmitting || !file} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isSubmitting ? 'Extracting Events...' : 'Process Statement of Fact'}
             </Button>
-          </form>
-        </Form>
+        </form>
       </CardContent>
     </>
   )
