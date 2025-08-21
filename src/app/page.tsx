@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { SoFProcessor } from '@/components/sof-processor';
 import { FloatingAiAssistant } from '@/components/floating-ai-assistant';
-import { Anchor, ArrowLeft } from 'lucide-react';
+import { Anchor, ArrowLeft, LogOut } from 'lucide-react';
 import { ClientOceanBackground } from '@/components/client-ocean-background';
 import type { ExtractPortOperationEventsOutput } from '@/ai/flows/extract-port-operation-events';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -14,10 +14,21 @@ import { AnalyticsDashboard } from '@/components/analytics-dashboard';
 import { Button } from '@/components/ui/button';
 import { ExtractedEventsView } from '@/components/extracted-events-view';
 import { Card } from '@/components/ui/card';
+import { useAuth } from '@/components/auth-provider';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 
 export default function Home() {
   const [extractedData, setExtractedData] = useState<ExtractPortOperationEventsOutput | null>(null);
+  const { user, signOut } = useAuth();
 
   const handleDataExtracted = (data: ExtractPortOperationEventsOutput) => {
     setExtractedData(data);
@@ -40,6 +51,32 @@ export default function Home() {
           </div>
            <div className="flex items-center gap-4">
               <ThemeToggle />
+              {user && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                      <Avatar className='h-8 w-8'>
+                         <AvatarFallback>{user.email?.[0].toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                     </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">My Account</p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          {user.email}
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={signOut}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
           </div>
         </header>
 
