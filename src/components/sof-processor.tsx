@@ -52,10 +52,6 @@ export function SoFProcessor() {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {
-      'application/pdf': ['.pdf'],
-      'text/plain': ['.txt'],
-    },
     maxFiles: 1,
   });
 
@@ -150,7 +146,7 @@ export function SoFProcessor() {
                                 ) : (
                                     <>
                                         <p className="mb-1 text-sm text-muted-foreground"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-                                        <p className="text-xs text-muted-foreground">PDF or TXT files</p>
+                                        <p className="text-xs text-muted-foreground">Any document or text file</p>
                                     </>
                                 )}
                             </div>
