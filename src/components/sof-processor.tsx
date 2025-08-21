@@ -35,7 +35,7 @@ const FormSchema = z.object({
 
 interface SoFProcessorProps {
   extractedData: ExtractedData | null;
-  setExtractedData: (data: ExtractedData | null) => void;
+  setExtractedData: (data: ExtractedData) => void;
 }
 
 export function SoFProcessor({ extractedData, setExtractedData }: SoFProcessorProps) {
@@ -45,7 +45,7 @@ export function SoFProcessor({ extractedData, setExtractedData }: SoFProcessorPr
     resolver: zodResolver(FormSchema),
   });
   
-  const { setValue, watch, formState: { isSubmitting } } = form;
+  const { setValue, watch, formState: { isSubmitting }, reset } = form;
   const watchedFile = watch("sofFile");
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -86,7 +86,6 @@ export function SoFProcessor({ extractedData, setExtractedData }: SoFProcessorPr
   };
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    setExtractedData(null);
     try {
       const textContent = await fileToText(data.sofFile);
       const result = await extractPortOperationEvents({ sofContent: textContent });
@@ -94,7 +93,7 @@ export function SoFProcessor({ extractedData, setExtractedData }: SoFProcessorPr
         setExtractedData(result);
         toast({
           title: "Extraction Successful",
-          description: `Extracted ${result.events.length} events for vessel ${result.vesselName}.`,
+          description: `Extracted ${result.events.length} events for vessel ${result.vesselName}. You can now view the Laytime Analytics tab.`,
         });
       } else {
         throw new Error("Invalid response from AI. Missing events or vessel name.");
@@ -133,6 +132,10 @@ export function SoFProcessor({ extractedData, setExtractedData }: SoFProcessorPr
     }, {} as Record<string, typeof extractedData.events>);
   }, [extractedData]);
 
+  const handleClear = () => {
+    reset({ sofFile: undefined });
+  };
+
   return (
     <div className="space-y-6 h-full flex flex-col">
       <Card className="bg-transparent border-0 shadow-none">
@@ -142,7 +145,7 @@ export function SoFProcessor({ extractedData, setExtractedData }: SoFProcessorPr
             <span>SoF Event Extractor</span>
           </CardTitle>
           <CardDescription>
-            Upload a Statement of Fact (SoF) file to extract port operation events.
+            Upload a Statement of Fact (SoF) file (.docx, .pdf, or .txt) to extract port operation events.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0 mt-6">
@@ -174,27 +177,27 @@ export function SoFProcessor({ extractedData, setExtractedData }: SoFProcessorPr
                 )}
               />
 
-              {watchedFile && (
+              {watchedFile && watchedFile.size > 0 ? (
                 <div className="flex items-center justify-between p-2 mt-2 text-sm rounded-md border bg-card">
-                  <div className="flex items-center gap-2">
-                    <FileIcon className="h-5 w-5 text-muted-foreground" />
-                    <span className="font-medium">{watchedFile.name}</span>
+                  <div className="flex items-center gap-2 overflow-hidden">
+                    <FileIcon className="h-5 w-5 text-muted-foreground shrink-0" />
+                    <span className="font-medium truncate">{watchedFile.name}</span>
                   </div>
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6"
-                    onClick={() => setValue("sofFile", new File([], ""), { shouldValidate: true })}
+                    className="h-6 w-6 shrink-0"
+                    onClick={handleClear}
                   >
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
-              )}
+              ) : null}
 
               <Button type="submit" disabled={isSubmitting || !watchedFile} className="bg-accent hover:bg-accent/90 text-accent-foreground">
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Extract Events
+                {isSubmitting ? 'Extracting...' : 'Extract Events'}
               </Button>
             </form>
           </Form>
