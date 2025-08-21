@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -23,6 +23,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Loader2, Download, FileText, Clock, Ship } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import { Badge } from "./ui/badge";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 
 type ExtractedData = ExtractPortOperationEventsOutput;
 
@@ -79,6 +80,18 @@ export function SoFProcessor() {
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
   };
+
+  const groupedEvents = useMemo(() => {
+    if (!extractedData) return {};
+    return extractedData.events.reduce((acc, event) => {
+      const category = event.category || 'Uncategorized';
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(event);
+      return acc;
+    }, {} as Record<string, typeof extractedData.events>);
+  }, [extractedData]);
   
   return (
     <div className="space-y-6 h-full flex flex-col">
@@ -139,33 +152,42 @@ export function SoFProcessor() {
             </div>
           </CardHeader>
           <CardContent className="flex-1 overflow-hidden">
-            <ScrollArea className="h-full">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Event</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Start Time</TableHead>
-                    <TableHead>End Time</TableHead>
-                    <TableHead>Duration</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Remarks</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {extractedData.events.map((event, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="font-medium">{event.event}</TableCell>
-                      <TableCell><Badge variant="secondary">{event.category}</Badge></TableCell>
-                      <TableCell>{event.startTime}</TableCell>
-                      <TableCell>{event.endTime}</TableCell>
-                      <TableCell>{event.duration}</TableCell>
-                      <TableCell><Badge variant={event.status === 'Completed' ? 'default' : 'destructive'}>{event.status}</Badge></TableCell>
-                      <TableCell>{event.remark}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+            <ScrollArea className="h-full pr-4">
+              <Accordion type="multiple" defaultValue={Object.keys(groupedEvents)} className="w-full">
+                {Object.entries(groupedEvents).map(([category, events]) => (
+                  <AccordionItem value={category} key={category}>
+                    <AccordionTrigger className="text-lg font-semibold text-primary/90 hover:no-underline">
+                      {category} ({events.length})
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Event</TableHead>
+                            <TableHead>Start Time</TableHead>
+                            <TableHead>End Time</TableHead>
+                            <TableHead>Duration</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Remarks</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {events.map((event, index) => (
+                            <TableRow key={index}>
+                              <TableCell className="font-medium">{event.event}</TableCell>
+                              <TableCell>{event.startTime}</TableCell>
+                              <TableCell>{event.endTime}</TableCell>
+                              <TableCell>{event.duration}</TableCell>
+                              <TableCell><Badge variant={event.status === 'Completed' ? 'default' : 'destructive'}>{event.status}</Badge></TableCell>
+                              <TableCell>{event.remark}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
             </ScrollArea>
           </CardContent>
         </Card>
