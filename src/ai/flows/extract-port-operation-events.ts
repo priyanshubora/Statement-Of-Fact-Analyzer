@@ -11,7 +11,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const ExtractPortOperationEventsInputSchema = z.object({
-  sofDataUri: z.string().describe("The content of the Statement of Fact file as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."),
+  sofContent: z.string().describe("The text content of the Statement of Fact file."),
 });
 export type ExtractPortOperationEventsInput = z.infer<typeof ExtractPortOperationEventsInputSchema>;
 
@@ -41,7 +41,7 @@ const extractPortOperationEventsPrompt = ai.definePrompt({
   output: {schema: ExtractPortOperationEventsOutputSchema},
   prompt: `You are an AI assistant specializing in maritime logistics and data extraction from Statements of Fact (SoFs).
 
-Your task is to meticulously analyze the content of the SoF provided and extract the vessel name and all port operation events. You must structure the output accurately into a JSON format.
+Your task is to meticulously analyze the text content of the SoF provided and extract the vessel name and all port operation events. You must structure the output accurately into a JSON format.
 
 First, identify the vessel name from the document.
 
@@ -58,7 +58,7 @@ Then, identify each distinct event and its details. Pay close attention to the f
 For each event, determine its category (e.g., 'Arrival', 'Cargo Operations', 'Delays', 'Departure'), its precise start and end times (in YYYY-MM-DD HH:MM format), calculate the duration, determine its status, and include any relevant remarks.
 
 SoF Content:
-{{media url=sofDataUri}}
+{{{sofContent}}}
 
 Extract the vessel name and all events, returning them in the specified JSON format. If a specific event type from the list above is not mentioned in the document, do not include it. Ensure every event that is mentioned is captured.`,
 });

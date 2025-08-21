@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import * as mammoth from "mammoth";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -55,12 +56,29 @@ export function SoFProcessor() {
     maxFiles: 1,
   });
 
-  const fileToDataURI = (file: File): Promise<string> => {
+  const fileToText = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
+      
+      if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        reader.onload = (event) => {
+          const arrayBuffer = event.target?.result as ArrayBuffer;
+          mammoth.extractRawText({ arrayBuffer })
+            .then(result => resolve(result.value))
+            .catch(reject);
+        };
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(file);
+      } else if (file.type === 'application/pdf' || file.type.startsWith('text/')) {
+         reader.onload = () => resolve(reader.result as string);
+         reader.onerror = reject;
+         reader.readAsText(file);
+      } else {
+        // Fallback for other file types, though may not be accurate
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsText(file);
+      }
     });
   };
 
@@ -68,8 +86,8 @@ export function SoFProcessor() {
     setIsLoading(true);
     setExtractedData(null);
     try {
-      const dataUri = await fileToDataURI(data.sofFile);
-      const result = await extractPortOperationEvents({ sofDataUri: dataUri });
+      const textContent = await fileToText(data.sofFile);
+      const result = await extractPortOperationEvents({ sofContent: textContent });
       if (result && result.events && result.vesselName) {
         setExtractedData(result);
         toast({
