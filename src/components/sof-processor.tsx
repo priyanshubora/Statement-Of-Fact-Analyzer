@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -14,23 +14,22 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { extractPortOperationEvents } from "@/ai/flows/extract-port-operation-events";
 import type { ExtractPortOperationEventsOutput } from "@/ai/flows/extract-port-operation-events";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Download, FileText, Clock, Ship } from "lucide-react";
+import { Loader2, Download, FileText, Clock, Ship, UploadCloud, File as FileIcon, X } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import { Badge } from "./ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
+import { useDropzone } from "react-dropzone";
+import { cn } from "@/lib/utils";
 
 type ExtractedData = ExtractPortOperationEventsOutput;
 
 const FormSchema = z.object({
-  sofContent: z.string().min(50, {
-    message: "Statement of Fact must be at least 50 characters.",
-  }),
+  sofFile: z.instanceof(File).refine(file => file.size > 0, "Please upload a file."),
 });
 
 export function SoFProcessor() {
@@ -40,14 +39,43 @@ export function SoFProcessor() {
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: { sofContent: "" },
   });
+
+  const { setValue, watch } = form;
+  const watchedFile = watch("sofFile");
+
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 0) {
+      setValue("sofFile", acceptedFiles[0], { shouldValidate: true });
+    }
+  }, [setValue]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'application/pdf': ['.pdf'],
+      'application/msword': ['.doc'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+      'text/plain': ['.txt'],
+    },
+    maxFiles: 1,
+  });
+
+  const fileToDataURI = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setIsLoading(true);
     setExtractedData(null);
     try {
-      const result = await extractPortOperationEvents(data);
+      const dataUri = await fileToDataURI(data.sofFile);
+      const result = await extractPortOperationEvents({ sofDataUri: dataUri });
       if (result && result.events && result.vesselName) {
         setExtractedData(result);
         toast({
@@ -63,7 +91,7 @@ export function SoFProcessor() {
       toast({
         variant: "destructive",
         title: "Extraction Failed",
-        description: e.message || "Could not extract events. Please check the content and try again.",
+        description: e.message || "Could not extract events. Please check the file and try again.",
       });
     } finally {
       setIsLoading(false);
@@ -92,7 +120,7 @@ export function SoFProcessor() {
       return acc;
     }, {} as Record<string, typeof extractedData.events>);
   }, [extractedData]);
-  
+
   return (
     <div className="space-y-6 h-full flex flex-col">
       <Card>
@@ -102,7 +130,7 @@ export function SoFProcessor() {
             <span>SoF Event Extractor</span>
           </CardTitle>
           <CardDescription>
-            Paste the content of a Statement of Fact (SoF) below to extract port operation events.
+            Upload a Statement of Fact (SoF) file to extract port operation events.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -110,22 +138,50 @@ export function SoFProcessor() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
-                name="sofContent"
-                render={({ field }) => (
+                name="sofFile"
+                render={() => (
                   <FormItem>
-                    <FormLabel>Statement of Fact Content</FormLabel>
+                    <FormLabel>Statement of Fact File</FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder="Paste SoF text here..."
-                        className="resize-y min-h-[150px] lg:min-h-[200px]"
-                        {...field}
-                      />
+                        <div {...getRootProps()} className={cn("relative flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted/75 transition-colors", isDragActive && "border-primary")}>
+                            <input {...getInputProps()} />
+                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                <UploadCloud className="w-8 h-8 mb-2 text-muted-foreground" />
+                                {isDragActive ? (
+                                    <p className="font-semibold text-primary">Drop the file here...</p>
+                                ) : (
+                                    <>
+                                        <p className="mb-1 text-sm text-muted-foreground"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                                        <p className="text-xs text-muted-foreground">PDF, DOCX, or TXT files</p>
+                                    </>
+                                )}
+                            </div>
+                        </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <Button type="submit" disabled={isLoading} className="bg-accent hover:bg-accent/90 text-accent-foreground">
+
+              {watchedFile && (
+                <div className="flex items-center justify-between p-2 mt-2 text-sm rounded-md border bg-card">
+                  <div className="flex items-center gap-2">
+                    <FileIcon className="h-5 w-5 text-muted-foreground" />
+                    <span className="font-medium">{watchedFile.name}</span>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => setValue("sofFile", new File([], ""), { shouldValidate: true })}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+
+              <Button type="submit" disabled={isLoading || !watchedFile} className="bg-accent hover:bg-accent/90 text-accent-foreground">
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Extract Events
               </Button>

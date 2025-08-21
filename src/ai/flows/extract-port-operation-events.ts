@@ -11,7 +11,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const ExtractPortOperationEventsInputSchema = z.object({
-  sofContent: z.string().describe('The content of the Statement of Fact file.'),
+  sofDataUri: z.string().describe("The content of the Statement of Fact file as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."),
 });
 export type ExtractPortOperationEventsInput = z.infer<typeof ExtractPortOperationEventsInputSchema>;
 
@@ -58,9 +58,7 @@ Then, identify each distinct event and its details. Pay close attention to the f
 For each event, determine its category (e.g., 'Arrival', 'Cargo Operations', 'Delays', 'Departure'), its precise start and end times (in YYYY-MM-DD HH:MM format), calculate the duration, determine its status, and include any relevant remarks.
 
 SoF Content:
-\`\`\`
-{{sofContent}}
-\`\`\`
+{{media url=sofDataUri}}
 
 Extract the vessel name and all events, returning them in the specified JSON format. If a specific event type from the list above is not mentioned in the document, do not include it. Ensure every event that is mentioned is captured.`,
 });
