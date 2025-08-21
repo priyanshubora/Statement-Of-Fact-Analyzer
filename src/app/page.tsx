@@ -10,6 +10,7 @@ import type { ExtractPortOperationEventsOutput } from '@/ai/flows/extract-port-o
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LaytimeCalculator } from '@/components/laytime-calculator';
 import { Card } from '@/components/ui/card';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function Home() {
   const [extractedData, setExtractedData] = useState<ExtractPortOperationEventsOutput | null>(null);
@@ -31,6 +32,7 @@ export default function Home() {
             </div>
             <h1 className="text-2xl font-bold text-primary md:text-3xl">SOFA</h1>
           </div>
+          <ThemeToggle />
         </header>
         <div className="w-full max-w-6xl grid grid-cols-1 gap-8 flex-1">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
