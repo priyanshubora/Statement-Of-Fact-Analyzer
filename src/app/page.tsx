@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LaytimeCalculator } from '@/components/laytime-calculator';
 import { Card } from '@/components/ui/card';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { AnalyticsDashboard } from '@/components/analytics-dashboard';
 
 export default function Home() {
   const [extractedData, setExtractedData] = useState<ExtractPortOperationEventsOutput | null>(null);
@@ -18,7 +19,7 @@ export default function Home() {
 
   const handleDataExtracted = (data: ExtractPortOperationEventsOutput) => {
     setExtractedData(data);
-    setActiveTab("calculator");
+    setActiveTab("analytics");
   }
 
   return (
@@ -36,9 +37,10 @@ export default function Home() {
         </header>
         <div className="w-full max-w-6xl grid grid-cols-1 gap-8 flex-1">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
+            <TabsList className="grid w-full grid-cols-3 max-w-2xl mx-auto">
               <TabsTrigger value="processor">SoF Processor</TabsTrigger>
-              <TabsTrigger value="calculator" disabled={!extractedData}>Laytime Analytics</TabsTrigger>
+              <TabsTrigger value="laytime" disabled={!extractedData}>Laytime Analytics</TabsTrigger>
+              <TabsTrigger value="analytics" disabled={!extractedData}>Analytics Dashboard</TabsTrigger>
             </TabsList>
             <TabsContent value="processor">
                 <Card className="bg-card/80 backdrop-blur-sm p-4 md:p-6 rounded-xl shadow-lg border border-border/20">
@@ -48,9 +50,14 @@ export default function Home() {
                     />
                 </Card>
             </TabsContent>
-            <TabsContent value="calculator">
+            <TabsContent value="laytime">
                 <Card className="bg-card/80 backdrop-blur-sm p-4 md:p-6 rounded-xl shadow-lg border border-border/20">
                     {extractedData && <LaytimeCalculator extractedData={extractedData} />}
+                </Card>
+            </TabsContent>
+            <TabsContent value="analytics">
+                <Card className="bg-card/80 backdrop-blur-sm p-4 md:p-6 rounded-xl shadow-lg border border-border/20">
+                    {extractedData && <AnalyticsDashboard extractedData={extractedData} />}
                 </Card>
             </TabsContent>
           </Tabs>
