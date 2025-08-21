@@ -22,6 +22,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Loader2, Download, FileText, Clock } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
+import { Badge } from "./ui/badge";
 
 type PortEvent = ExtractPortOperationEventsOutput["events"][0];
 
@@ -139,16 +140,24 @@ export function SoFProcessor() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Event</TableHead>
+                    <TableHead>Category</TableHead>
                     <TableHead>Start Time</TableHead>
                     <TableHead>End Time</TableHead>
+                    <TableHead>Duration</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Remarks</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {events.map((event, index) => (
                     <TableRow key={index}>
                       <TableCell className="font-medium">{event.event}</TableCell>
+                      <TableCell><Badge variant="secondary">{event.category}</Badge></TableCell>
                       <TableCell>{event.startTime}</TableCell>
                       <TableCell>{event.endTime}</TableCell>
+                      <TableCell>{event.duration}</TableCell>
+                      <TableCell><Badge variant={event.status === 'Completed' ? 'default' : 'destructive'}>{event.status}</Badge></TableCell>
+                      <TableCell>{event.remark}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
