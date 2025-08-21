@@ -25,6 +25,7 @@ interface FloatingAiAssistantProps {
 
 export function FloatingAiAssistant({ extractedData }: FloatingAiAssistantProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [hasNewInsight, setHasNewInsight] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
@@ -47,6 +48,12 @@ export function FloatingAiAssistant({ extractedData }: FloatingAiAssistantProps)
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+  
+  useEffect(() => {
+    if (isOpen) {
+        setHasNewInsight(false);
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (extractedData) {
@@ -56,6 +63,7 @@ export function FloatingAiAssistant({ extractedData }: FloatingAiAssistantProps)
           if (result && result.summary) {
             const insightMessage: Message = { role: "assistant", content: `Here are some insights for **${extractedData.vesselName}**:\n\n${result.summary}` };
             setMessages(prev => [...prev, insightMessage]);
+            setHasNewInsight(true);
           }
         })
         .catch(error => {
@@ -65,7 +73,6 @@ export function FloatingAiAssistant({ extractedData }: FloatingAiAssistantProps)
         })
         .finally(() => {
           setIsLoading(false);
-          setIsOpen(true);
         });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -105,7 +112,7 @@ export function FloatingAiAssistant({ extractedData }: FloatingAiAssistantProps)
       <SheetTrigger asChild>
         <Button className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl bg-primary hover:bg-primary/90 text-primary-foreground z-20">
             <MessageSquare size={32} />
-            {extractedData && <Badge color="yellow" className="absolute -top-1 -right-1 bg-accent text-accent-foreground"><Sparkles className="h-4 w-4" /></Badge>}
+            {hasNewInsight && <Badge color="yellow" className="absolute -top-1 -right-1 bg-accent text-accent-foreground"><Sparkles className="h-4 w-4" /></Badge>}
         </Button>
       </SheetTrigger>
       <SheetContent className="flex flex-col p-0 w-full max-w-md">

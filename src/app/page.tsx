@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { SoFProcessor } from '@/components/sof-processor';
 import { FloatingAiAssistant } from '@/components/floating-ai-assistant';
-import { Anchor, Calculator } from 'lucide-react';
+import { Anchor } from 'lucide-react';
 import { ClientOceanBackground } from '@/components/client-ocean-background';
 import type { ExtractPortOperationEventsOutput } from '@/ai/flows/extract-port-operation-events';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
