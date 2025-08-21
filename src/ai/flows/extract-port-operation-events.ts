@@ -45,14 +45,24 @@ Your task is to meticulously analyze the content of the SoF provided and extract
 
 First, identify the vessel name from the document.
 
-Then, pay close attention to event details. Identify each distinct event, its category (like 'Arrival', 'Cargo Operations', 'Bunkering', 'Delays', 'Departure'), its precise start and end times (in YYYY-MM-DD HH:MM format), calculate the duration, determine its status, and include any relevant remarks.
+Then, identify each distinct event and its details. Pay close attention to the following critical event types if they are present:
+- **Arrival at Anchorage**: The exact moment the ship arrives at the designated waiting area.
+- **Notice of Readiness (NOR) Tendered**: The exact date and time the ship's captain declares readiness for cargo operations.
+- **Pilot on Board**: The time a local port pilot boards to guide the vessel.
+- **Arrival at Berth**: The exact time the ship is securely moored at the dock.
+- **Commencement of Cargo Operations**: The time loading or unloading begins.
+- **Interruption of Operations**: Any stoppage in work. For each interruption, you must capture the reason (e.g., "rain delay," "equipment failure," "strike"), and its start and end times.
+- **Completion of Cargo Operations**: The time loading or unloading is finished.
+- **Departure from Berth**: The time the ship leaves the dock.
+
+For each event, determine its category (e.g., 'Arrival', 'Cargo Operations', 'Delays', 'Departure'), its precise start and end times (in YYYY-MM-DD HH:MM format), calculate the duration, determine its status, and include any relevant remarks.
 
 SoF Content:
 \`\`\`
 {{sofContent}}
 \`\`\`
 
-Extract the vessel name and all events, returning them in the specified JSON format. Ensure every event mentioned in the document is captured.`,
+Extract the vessel name and all events, returning them in the specified JSON format. If a specific event type from the list above is not mentioned in the document, do not include it. Ensure every event that is mentioned is captured.`,
 });
 
 const extractPortOperationEventsFlow = ai.defineFlow(
