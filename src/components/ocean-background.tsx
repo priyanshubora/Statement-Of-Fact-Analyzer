@@ -1,11 +1,18 @@
 import { Ship } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import './ocean-background.css';
 
 export function OceanBackground({ className }: { className?: string }) {
   return (
-    <div className={cn("absolute inset-0 -z-10 overflow-hidden", className)}>
-      <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-primary/20 to-transparent" />
-      <Ship className="absolute bottom-8 left-1/2 -translate-x-1/2 w-32 h-32 text-primary/10 animate-ship-bob" />
+    <div className={cn("absolute inset-0 z-0 overflow-hidden bg-gradient-to-b from-blue-100 to-blue-300 dark:from-slate-800 dark:to-slate-950", className)}>
+        <div className="ocean">
+            <div className="wave"></div>
+            <div className="wave"></div>
+            <div className="wave"></div>
+        </div>
+        <div className="absolute inset-0 flex items-center justify-center">
+             <Ship className="w-48 h-48 text-primary/10 animate-ship-bob relative -bottom-16" />
+        </div>
     </div>
   );
 }

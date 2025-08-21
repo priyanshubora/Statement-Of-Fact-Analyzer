@@ -62,7 +62,7 @@ export function AiAssistant() {
   };
 
   return (
-    <Card className="h-full flex flex-col">
+    <Card className="h-full flex flex-col bg-transparent border-0 shadow-none">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Bot className="h-6 w-6 text-primary" />

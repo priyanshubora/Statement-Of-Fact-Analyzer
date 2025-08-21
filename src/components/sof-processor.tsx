@@ -54,6 +54,11 @@ export function SoFProcessor() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     maxFiles: 1,
+    accept: {
+        'application/pdf': ['.pdf'],
+        'text/plain': ['.txt'],
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
+    }
   });
 
   const fileToText = (file: File): Promise<string> => {
@@ -135,8 +140,8 @@ export function SoFProcessor() {
 
   return (
     <div className="space-y-6 h-full flex flex-col">
-      <Card>
-        <CardHeader>
+      <Card className="bg-transparent border-0 shadow-none">
+        <CardHeader className="p-0">
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-6 w-6 text-primary" />
             <span>SoF Event Extractor</span>
@@ -145,7 +150,7 @@ export function SoFProcessor() {
             Upload a Statement of Fact (SoF) file to extract port operation events.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0 mt-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -153,9 +158,8 @@ export function SoFProcessor() {
                 name="sofFile"
                 render={() => (
                   <FormItem>
-                    <FormLabel>Statement of Fact File</FormLabel>
                     <FormControl>
-                        <div {...getRootProps()} className={cn("relative flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted/75 transition-colors", isDragActive && "border-primary")}>
+                        <div {...getRootProps()} className={cn("relative flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/20 hover:bg-muted/40 transition-colors", isDragActive && "border-primary bg-primary/10")}>
                             <input {...getInputProps()} />
                             <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                 <UploadCloud className="w-8 h-8 mb-2 text-muted-foreground" />
@@ -164,7 +168,7 @@ export function SoFProcessor() {
                                 ) : (
                                     <>
                                         <p className="mb-1 text-sm text-muted-foreground"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-                                        <p className="text-xs text-muted-foreground">Any document or text file</p>
+                                        <p className="text-xs text-muted-foreground">DOCX, PDF, or TXT</p>
                                     </>
                                 )}
                             </div>
@@ -203,8 +207,8 @@ export function SoFProcessor() {
       </Card>
       
       {extractedData && extractedData.events.length > 0 && (
-        <Card className="flex-1 flex flex-col">
-          <CardHeader>
+        <Card className="flex-1 flex flex-col bg-transparent border-0 shadow-none">
+          <CardHeader className="p-0">
             <div className="flex justify-between items-start">
                 <div>
                     <CardTitle className="flex items-center gap-2"><Clock className="h-6 w-6 text-primary" /> Extracted Events</CardTitle>
@@ -219,8 +223,8 @@ export function SoFProcessor() {
                 </Button>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 overflow-hidden">
-            <ScrollArea className="h-full pr-4">
+          <CardContent className="flex-1 overflow-hidden mt-6 p-0">
+            <ScrollArea className="h-full pr-4 -mr-4">
               <Accordion type="multiple" defaultValue={Object.keys(groupedEvents)} className="w-full">
                 {Object.entries(groupedEvents).map(([category, events]) => (
                   <AccordionItem value={category} key={category}>
