@@ -16,6 +16,7 @@ const ExtractPortOperationEventsInputSchema = z.object({
 export type ExtractPortOperationEventsInput = z.infer<typeof ExtractPortOperationEventsInputSchema>;
 
 const ExtractPortOperationEventsOutputSchema = z.object({
+  vesselName: z.string().describe("The name of the vessel mentioned in the SoF."),
   events: z.array(
     z.object({
       event: z.string().describe('A concise title for the port operation event (e.g., "Pilot Onboard", "Cargo Discharging").'),
@@ -40,16 +41,18 @@ const extractPortOperationEventsPrompt = ai.definePrompt({
   output: {schema: ExtractPortOperationEventsOutputSchema},
   prompt: `You are an AI assistant specializing in maritime logistics and data extraction from Statements of Fact (SoFs).
 
-Your task is to meticulously analyze the content of the SoF provided and extract all port operation events. You must structure the output accurately into a JSON format.
+Your task is to meticulously analyze the content of the SoF provided and extract the vessel name and all port operation events. You must structure the output accurately into a JSON format.
 
-Pay close attention to details. Identify each distinct event, its category (like 'Arrival', 'Cargo Operations', 'Bunkering', 'Delays', 'Departure'), its precise start and end times (in YYYY-MM-DD HH:MM format), calculate the duration, determine its status, and include any relevant remarks.
+First, identify the vessel name from the document.
+
+Then, pay close attention to event details. Identify each distinct event, its category (like 'Arrival', 'Cargo Operations', 'Bunkering', 'Delays', 'Departure'), its precise start and end times (in YYYY-MM-DD HH:MM format), calculate the duration, determine its status, and include any relevant remarks.
 
 SoF Content:
 \`\`\`
 {{sofContent}}
 \`\`\`
 
-Extract all events and return them in the specified JSON format. Ensure every event mentioned in the document is captured.`,
+Extract the vessel name and all events, returning them in the specified JSON format. Ensure every event mentioned in the document is captured.`,
 });
 
 const extractPortOperationEventsFlow = ai.defineFlow(

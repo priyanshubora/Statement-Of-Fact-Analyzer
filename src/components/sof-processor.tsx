@@ -20,11 +20,11 @@ import { extractPortOperationEvents } from "@/ai/flows/extract-port-operation-ev
 import type { ExtractPortOperationEventsOutput } from "@/ai/flows/extract-port-operation-events";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Download, FileText, Clock } from "lucide-react";
+import { Loader2, Download, FileText, Clock, Ship } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import { Badge } from "./ui/badge";
 
-type PortEvent = ExtractPortOperationEventsOutput["events"][0];
+type ExtractedData = ExtractPortOperationEventsOutput;
 
 const FormSchema = z.object({
   sofContent: z.string().min(50, {
@@ -33,7 +33,7 @@ const FormSchema = z.object({
 });
 
 export function SoFProcessor() {
-  const [events, setEvents] = useState<PortEvent[]>([]);
+  const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -44,17 +44,17 @@ export function SoFProcessor() {
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setIsLoading(true);
-    setEvents([]);
+    setExtractedData(null);
     try {
       const result = await extractPortOperationEvents(data);
-      if (result && result.events) {
-        setEvents(result.events);
+      if (result && result.events && result.vesselName) {
+        setExtractedData(result);
         toast({
           title: "Extraction Successful",
-          description: "Port operation events have been extracted.",
+          description: `Extracted ${result.events.length} events for vessel ${result.vesselName}.`,
         });
       } else {
-        throw new Error("Invalid response from AI.");
+        throw new Error("Invalid response from AI. Missing events or vessel name.");
       }
     } catch (error) {
       const e = error as Error;
@@ -70,10 +70,11 @@ export function SoFProcessor() {
   }
 
   const downloadJSON = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(events, null, 2));
+    if (!extractedData) return;
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(extractedData, null, 2));
     const downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "sof_events.json");
+    downloadAnchorNode.setAttribute("download", `${extractedData.vesselName.replace(/\s+/g, '_')}_sof_events.json`);
     document.body.appendChild(downloadAnchorNode);
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
@@ -120,13 +121,16 @@ export function SoFProcessor() {
         </CardContent>
       </Card>
       
-      {events.length > 0 && (
+      {extractedData && extractedData.events.length > 0 && (
         <Card className="flex-1 flex flex-col">
           <CardHeader>
             <div className="flex justify-between items-start">
                 <div>
                     <CardTitle className="flex items-center gap-2"><Clock className="h-6 w-6 text-primary" /> Extracted Events</CardTitle>
-                    <CardDescription>Review the events extracted from the SoF.</CardDescription>
+                    <CardDescription className="flex items-center gap-2 pt-2">
+                      <Ship className="h-4 w-4 text-muted-foreground" /> 
+                      <span>Vessel: <strong>{extractedData.vesselName}</strong></span>
+                    </CardDescription>
                 </div>
                 <Button variant="outline" size="sm" onClick={downloadJSON}>
                     <Download className="mr-2 h-4 w-4" />
@@ -149,7 +153,7 @@ export function SoFProcessor() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {events.map((event, index) => (
+                  {extractedData.events.map((event, index) => (
                     <TableRow key={index}>
                       <TableCell className="font-medium">{event.event}</TableCell>
                       <TableCell><Badge variant="secondary">{event.category}</Badge></TableCell>
