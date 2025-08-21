@@ -16,12 +16,12 @@ const PortEventSchema = z.object({
   endTime: z.string().describe('The end time of the event.'),
 });
 
-export const CalculateLaytimeInputSchema = z.object({
+const CalculateLaytimeInputSchema = z.object({
   events: z.array(PortEventSchema).describe('An array of port operation events extracted from the SoF.'),
 });
 export type CalculateLaytimeInput = z.infer<typeof CalculateLaytimeInputSchema>;
 
-export const CalculateLaytimeOutputSchema = z.object({
+const CalculateLaytimeOutputSchema = z.object({
   totalLaytime: z.string().describe('The total calculated laytime in a human-readable format (e.g., "2 days, 4 hours, 30 minutes").'),
   allowedLaytime: z.string().describe('The standard allowed laytime based on contract (default or specified).'),
   timeSaved: z.string().describe('Time saved if operations finished before allowed laytime expired.'),
