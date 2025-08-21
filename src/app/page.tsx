@@ -63,12 +63,17 @@ export default function Home() {
                         </Button>
                     </div>
 
-                    <Tabs defaultValue="laytime" className="w-full">
+                    <Tabs defaultValue="events" className="w-full">
                         <TabsList className="grid w-full grid-cols-3 max-w-2xl mx-auto">
+                            <TabsTrigger value="events">Extracted Events</TabsTrigger>
                             <TabsTrigger value="laytime">Laytime Analytics</TabsTrigger>
                             <TabsTrigger value="timeline">Event Timeline</TabsTrigger>
-                            <TabsTrigger value="events">Extracted Events</TabsTrigger>
                         </TabsList>
+                        <TabsContent value="events">
+                            <Card className="bg-card/80 backdrop-blur-sm p-4 md:p-6 rounded-xl shadow-lg border border-border/20">
+                                <ExtractedEventsView extractedData={extractedData} />
+                            </Card>
+                        </TabsContent>
                         <TabsContent value="laytime">
                             <Card className="bg-card/80 backdrop-blur-sm p-4 md:p-6 rounded-xl shadow-lg border border-border/20">
                                 <LaytimeCalculator extractedData={extractedData} />
@@ -77,11 +82,6 @@ export default function Home() {
                         <TabsContent value="timeline">
                             <Card className="bg-card/80 backdrop-blur-sm p-4 md:p-6 rounded-xl shadow-lg border border-border/20">
                                 <AnalyticsDashboard extractedData={extractedData} />
-                            </Card>
-                        </TabsContent>
-                        <TabsContent value="events">
-                            <Card className="bg-card/80 backdrop-blur-sm p-4 md:p-6 rounded-xl shadow-lg border border-border/20">
-                                <ExtractedEventsView extractedData={extractedData} />
                             </Card>
                         </TabsContent>
                     </Tabs>
