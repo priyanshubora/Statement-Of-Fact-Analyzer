@@ -88,10 +88,15 @@ export default {
             height: '0',
           },
         },
+        'ship-bob': {
+          '0%, 100%': { transform: 'translateY(-2%) rotate(1deg)' },
+          '50%': { transform: 'translateY(2%) rotate(-1deg)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'ship-bob': 'ship-bob 10s ease-in-out infinite',
       },
     },
   },
