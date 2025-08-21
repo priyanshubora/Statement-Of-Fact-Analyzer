@@ -1,0 +1,171 @@
+
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { guideNewUsers } from "@/ai/flows/guide-new-users";
+import { summarizePortEvents, type SummarizePortEventsInput } from "@/ai/flows/summarize-port-events";
+import type { ExtractPortOperationEventsOutput } from "@/ai/flows/extract-port-operation-events";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Send, Bot, User, Loader2, Sparkles, MessageSquare } from "lucide-react";
+import { Card, CardContent } from "./ui/card";
+import { Badge } from "./ui/badge";
+
+interface Message {
+  role: "user" | "assistant";
+  content: string;
+}
+
+interface FloatingAiAssistantProps {
+  extractedData: ExtractPortOperationEventsOutput | null;
+}
+
+export function FloatingAiAssistant({ extractedData }: FloatingAiAssistantProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: 'assistant',
+      content: "Hello! I'm the SOFA assistant. I can help you use the app or provide insights on your uploaded Statement of Fact. How can I help?"
+    }
+  ]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const scrollAreaViewportRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    if (scrollAreaViewportRef.current) {
+        scrollAreaViewportRef.current.scrollTo({
+            top: scrollAreaViewportRef.current.scrollHeight,
+            behavior: "smooth"
+        });
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    if (extractedData) {
+      setIsLoading(true);
+      summarizePortEvents({ events: extractedData.events } as SummarizePortEventsInput)
+        .then(result => {
+          if (result && result.summary) {
+            const insightMessage: Message = { role: "assistant", content: `Here are some insights for **${extractedData.vesselName}**:\n\n${result.summary}` };
+            setMessages(prev => [...prev, insightMessage]);
+          }
+        })
+        .catch(error => {
+          console.error(error);
+          const errorMessage: Message = { role: "assistant", content: "Sorry, I had trouble analyzing the vessel's events. Please try again." };
+          setMessages((prev) => [...prev, errorMessage]);
+        })
+        .finally(() => {
+          setIsLoading(false);
+          setIsOpen(true);
+        });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [extractedData]);
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
+
+    const userMessage: Message = { role: "user", content: input };
+    setMessages((prev) => [...prev, userMessage]);
+    const currentInput = input;
+    setInput("");
+    setIsLoading(true);
+
+    try {
+      // If there is data, we assume the user might be asking about it.
+      // A more advanced implementation could use a tool-based router here.
+      const result = await guideNewUsers({ query: currentInput });
+      if (result && result.response) {
+        const assistantMessage: Message = { role: "assistant", content: result.response };
+        setMessages((prev) => [...prev, assistantMessage]);
+      } else {
+        throw new Error("Invalid response from AI assistant.");
+      }
+    } catch (error) {
+      console.error(error);
+      const errorMessage: Message = { role: "assistant", content: "Sorry, I encountered an error. Please try again." };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  return (
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+      <SheetTrigger asChild>
+        <Button className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl bg-primary hover:bg-primary/90 text-primary-foreground z-20">
+            <MessageSquare size={32} />
+            {extractedData && <Badge color="yellow" className="absolute -top-1 -right-1 bg-accent text-accent-foreground"><Sparkles className="h-4 w-4" /></Badge>}
+        </Button>
+      </SheetTrigger>
+      <SheetContent className="flex flex-col p-0 w-full max-w-md">
+        <SheetHeader className="p-4 border-b">
+          <SheetTitle className="flex items-center gap-2">
+            <Bot className="h-6 w-6 text-primary" />
+            <span>AI Assistant</span>
+          </SheetTitle>
+          <SheetDescription>
+            Ask about the app or for insights on your SoF data.
+          </SheetDescription>
+        </SheetHeader>
+        <div className="flex-1 flex flex-col gap-4 overflow-hidden">
+            <ScrollArea className="flex-1 p-4" ref={scrollAreaViewportRef}>
+                <div className="space-y-4">
+                    {messages.map((message, index) => (
+                    <div key={index} className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : ''}`}>
+                        {message.role === 'assistant' && (
+                        <Avatar className="h-8 w-8 border border-primary/50">
+                            <AvatarFallback className="bg-primary text-primary-foreground"><Bot size={20}/></AvatarFallback>
+                        </Avatar>
+                        )}
+                        <Card className={`rounded-lg px-4 py-2 max-w-[85%] whitespace-pre-wrap ${message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                          <CardContent className="p-0 text-sm" dangerouslySetInnerHTML={{ __html: message.content.replace(/\n/g, '<br />') }} />
+                        </Card>
+                        {message.role === 'user' && (
+                        <Avatar className="h-8 w-8">
+                            <AvatarFallback><User size={20}/></AvatarFallback>
+                        </Avatar>
+                        )}
+                    </div>
+                    ))}
+                    {isLoading && (
+                        <div className="flex items-start gap-3">
+                            <Avatar className="h-8 w-8 border border-primary/50">
+                                <AvatarFallback className="bg-primary text-primary-foreground"><Bot size={20}/></AvatarFallback>
+                            </Avatar>
+                            <div className="rounded-lg px-4 py-2 bg-muted flex items-center justify-center">
+                                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </ScrollArea>
+            <div className="p-4 border-t bg-background">
+                <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+                <Input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="e.g., Explain the delays"
+                    disabled={isLoading}
+                    autoComplete="off"
+                />
+                <Button type="submit" size="icon" disabled={isLoading || !input.trim()} className="bg-accent hover:bg-accent/90 shrink-0">
+                    <Send className="h-4 w-4 text-accent-foreground" />
+                </Button>
+                </form>
+            </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}

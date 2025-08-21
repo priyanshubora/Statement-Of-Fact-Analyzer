@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useMemo, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -12,7 +13,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
@@ -33,16 +33,19 @@ const FormSchema = z.object({
   sofFile: z.instanceof(File).refine(file => file.size > 0, "Please upload a file."),
 });
 
-export function SoFProcessor() {
-  const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+interface SoFProcessorProps {
+  extractedData: ExtractedData | null;
+  setExtractedData: (data: ExtractedData | null) => void;
+}
+
+export function SoFProcessor({ extractedData, setExtractedData }: SoFProcessorProps) {
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   });
-
-  const { setValue, watch } = form;
+  
+  const { setValue, watch, formState: { isSubmitting } } = form;
   const watchedFile = watch("sofFile");
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -55,9 +58,9 @@ export function SoFProcessor() {
     onDrop,
     maxFiles: 1,
     accept: {
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
         'application/pdf': ['.pdf'],
         'text/plain': ['.txt'],
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
     }
   });
 
@@ -74,21 +77,15 @@ export function SoFProcessor() {
         };
         reader.onerror = reject;
         reader.readAsArrayBuffer(file);
-      } else if (file.type === 'application/pdf' || file.type.startsWith('text/')) {
+      } else {
          reader.onload = () => resolve(reader.result as string);
          reader.onerror = reject;
          reader.readAsText(file);
-      } else {
-        // Fallback for other file types, though may not be accurate
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsText(file);
       }
     });
   };
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    setIsLoading(true);
     setExtractedData(null);
     try {
       const textContent = await fileToText(data.sofFile);
@@ -110,8 +107,6 @@ export function SoFProcessor() {
         title: "Extraction Failed",
         description: e.message || "Could not extract events. Please check the file and try again.",
       });
-    } finally {
-      setIsLoading(false);
     }
   }
 
@@ -125,7 +120,7 @@ export function SoFProcessor() {
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
   };
-
+  
   const groupedEvents = useMemo(() => {
     if (!extractedData) return {};
     return extractedData.events.reduce((acc, event) => {
@@ -197,8 +192,8 @@ export function SoFProcessor() {
                 </div>
               )}
 
-              <Button type="submit" disabled={isLoading || !watchedFile} className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button type="submit" disabled={isSubmitting || !watchedFile} className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Extract Events
               </Button>
             </form>
@@ -207,7 +202,7 @@ export function SoFProcessor() {
       </Card>
       
       {extractedData && extractedData.events.length > 0 && (
-        <Card className="flex-1 flex flex-col bg-transparent border-0 shadow-none">
+        <Card className="flex-1 flex flex-col bg-transparent border-0 shadow-none min-h-0">
           <CardHeader className="p-0">
             <div className="flex justify-between items-start">
                 <div>
