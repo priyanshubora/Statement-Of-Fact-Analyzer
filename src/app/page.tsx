@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -44,7 +45,7 @@ export default function Home() {
 
         <div className="w-full max-w-7xl grid grid-cols-1 gap-8 flex-1">
             {!extractedData ? (
-                <div className="max-w-xl mx-auto w-full p-4 md:p-6 rounded-lg neumorphic-outset">
+                <div className="max-w-xl mx-auto w-full p-4 md:p-6 rounded-lg neumorphic-outset bg-card">
                     <SoFProcessor 
                         onDataExtracted={handleDataExtracted} 
                     />
@@ -71,17 +72,17 @@ export default function Home() {
                             <TabsTrigger value="timeline" className="data-[state=active]:neumorphic-outset data-[state=active]:text-primary data-[state=active]:shadow-none rounded-md">Event Timeline</TabsTrigger>
                         </TabsList>
                         <TabsContent value="events" className="mt-6">
-                            <Card className="p-4 md:p-6 neumorphic-outset rounded-lg">
+                            <Card className="p-4 md:p-6 neumorphic-outset rounded-lg bg-card">
                                 <ExtractedEventsView extractedData={extractedData} />
                             </Card>
                         </TabsContent>
                         <TabsContent value="laytime" className="mt-6">
-                            <Card className="p-4 md:p-6 neumorphic-outset rounded-lg">
+                            <Card className="p-4 md:p-6 neumorphic-outset rounded-lg bg-card">
                                 <LaytimeCalculator laytimeResult={extractedData.laytimeCalculation} />
                             </Card>
                         </TabsContent>
                         <TabsContent value="timeline" className="mt-6">
-                             <Card className="p-4 md:p-6 neumorphic-outset rounded-lg">
+                             <Card className="p-4 md:p-6 neumorphic-outset rounded-lg bg-card">
                                 <AnalyticsDashboard extractedData={extractedData} />
                             </Card>
                         </TabsContent>
