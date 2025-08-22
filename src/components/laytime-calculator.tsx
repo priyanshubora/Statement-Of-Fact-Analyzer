@@ -46,7 +46,7 @@ interface LaytimeCalculatorProps {
 export function LaytimeCalculator({ laytimeResult }: LaytimeCalculatorProps) {
   if (!laytimeResult) {
     return (
-      <Alert>
+      <Alert className="neumorphic-outset rounded-lg">
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>No Laytime Data</AlertTitle>
         <AlertDescription>
@@ -71,7 +71,7 @@ export function LaytimeCalculator({ laytimeResult }: LaytimeCalculatorProps) {
         </CardHeader>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card>
+            <Card className="neumorphic-outset rounded-lg">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Total Laytime Used</CardTitle>
                     <Clock className="h-4 w-4 text-muted-foreground" />
@@ -81,7 +81,7 @@ export function LaytimeCalculator({ laytimeResult }: LaytimeCalculatorProps) {
                     <p className="text-xs text-muted-foreground">Total time counted against allowable laytime.</p>
                 </CardContent>
             </Card>
-            <Card>
+            <Card className="neumorphic-outset rounded-lg">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Allowed Laytime</CardTitle>
                     <Hourglass className="h-4 w-4 text-muted-foreground" />
@@ -91,7 +91,7 @@ export function LaytimeCalculator({ laytimeResult }: LaytimeCalculatorProps) {
                     <p className="text-xs text-muted-foreground">As per charter party agreement (default).</p>
                 </CardContent>
             </Card>
-             <Card>
+             <Card className="neumorphic-outset rounded-lg">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium text-green-600 dark:text-green-400">Time Saved (Despatch)</CardTitle>
                     <Save className="h-4 w-4 text-green-600 dark:text-green-400" />
@@ -101,7 +101,7 @@ export function LaytimeCalculator({ laytimeResult }: LaytimeCalculatorProps) {
                      <p className="text-xs text-muted-foreground">Operations completed ahead of schedule.</p>
                 </CardContent>
             </Card>
-            <Card>
+            <Card className="neumorphic-outset rounded-lg">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium text-red-600 dark:text-red-400">Extra Time (Demurrage)</CardTitle>
                     <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
@@ -113,7 +113,7 @@ export function LaytimeCalculator({ laytimeResult }: LaytimeCalculatorProps) {
             </Card>
         </div>
 
-        <Card>
+        <Card className="neumorphic-outset rounded-lg">
           <CardHeader>
             <CardTitle>Laytime Event Breakdown</CardTitle>
             <CardDescription>
@@ -140,8 +140,8 @@ export function LaytimeCalculator({ laytimeResult }: LaytimeCalculatorProps) {
                       <Badge
                         variant={event.isCounted ? "default" : "secondary"}
                         className={cn(
-                            event.isCounted ? "bg-blue-600 hover:bg-blue-600/90" : "bg-gray-500 hover:bg-gray-500/90",
-                            "text-white"
+                            "text-white neumorphic-outset",
+                            event.isCounted ? "bg-blue-600" : "bg-gray-500",
                         )}
                       >
                         {event.isCounted ? (
@@ -159,7 +159,7 @@ export function LaytimeCalculator({ laytimeResult }: LaytimeCalculatorProps) {
                           <TooltipTrigger asChild>
                             <HelpCircle className="h-4 w-4 ml-2 text-muted-foreground cursor-help" />
                           </TooltipTrigger>
-                          <TooltipContent>
+                          <TooltipContent className="neumorphic-outset rounded-lg">
                             <p>{event.reason}</p>
                           </TooltipContent>
                         </Tooltip>

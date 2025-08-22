@@ -6,7 +6,7 @@
   :root {
     --background: 220 15% 96%;
     --foreground: 220 10% 40%;
-    --card: 220 15% 100%;
+    --card: 220 15% 96%;
     --card-foreground: 220 10% 40%;
     --popover: 220 15% 100%;
     --popover-foreground: 220 10% 40%;
@@ -33,7 +33,7 @@
   .dark {
     --background: 220 15% 10%;
     --foreground: 220 10% 80%;
-    --card: 220 15% 15%;
+    --card: 220 15% 10%;
     --card-foreground: 220 10% 80%;
     --popover: 220 15% 15%;
     --popover-foreground: 220 10% 80%;
@@ -64,5 +64,20 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .neumorphic-outset {
+    @apply shadow-neumorphic-outset dark:shadow-neumorphic-outset-dark;
+  }
+  .neumorphic-inset {
+    @apply shadow-neumorphic-inset dark:shadow-neumorphic-inset-dark;
+  }
+  .neumorphic-outset-hover {
+    @apply hover:shadow-neumorphic-outset-hover dark:hover:shadow-neumorphic-outset-dark-hover;
+  }
+   .neumorphic-inset-active {
+    @apply active:shadow-neumorphic-inset dark:active:shadow-neumorphic-inset-dark;
   }
 }
