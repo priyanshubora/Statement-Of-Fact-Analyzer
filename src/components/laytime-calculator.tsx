@@ -90,7 +90,7 @@ export function LaytimeCalculator({ extractedData }: LaytimeCalculatorProps) {
 
   if (error) {
     return (
-      <Alert variant="destructive">
+      <Alert variant="destructive" className="neumorphic-flat">
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Calculation Failed</AlertTitle>
         <AlertDescription>{error}</AlertDescription>
@@ -100,7 +100,7 @@ export function LaytimeCalculator({ extractedData }: LaytimeCalculatorProps) {
 
   if (!laytimeResult) {
     return (
-      <div className="flex flex-col items-center justify-center h-96 gap-4">
+      <div className="flex flex-col items-center justify-center h-96 gap-4 neumorphic-flat">
         <AlertCircle className="h-12 w-12 text-muted-foreground" />
         <p className="text-muted-foreground">No laytime data available.</p>
       </div>
@@ -122,7 +122,7 @@ export function LaytimeCalculator({ extractedData }: LaytimeCalculatorProps) {
         </CardHeader>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card>
+            <Card className="neumorphic-flat border-none">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Total Laytime Used</CardTitle>
                     <Clock className="h-4 w-4 text-muted-foreground" />
@@ -132,7 +132,7 @@ export function LaytimeCalculator({ extractedData }: LaytimeCalculatorProps) {
                     <p className="text-xs text-muted-foreground">Total time counted against allowable laytime.</p>
                 </CardContent>
             </Card>
-            <Card>
+            <Card className="neumorphic-flat border-none">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Allowed Laytime</CardTitle>
                     <Hourglass className="h-4 w-4 text-muted-foreground" />
@@ -142,7 +142,7 @@ export function LaytimeCalculator({ extractedData }: LaytimeCalculatorProps) {
                     <p className="text-xs text-muted-foreground">As per charter party agreement (default).</p>
                 </CardContent>
             </Card>
-             <Card className="border-green-500/50 bg-green-500/5">
+             <Card className="neumorphic-flat border-green-500/50">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium text-green-700 dark:text-green-400">Time Saved (Despatch)</CardTitle>
                     <Save className="h-4 w-4 text-green-700 dark:text-green-400" />
@@ -152,7 +152,7 @@ export function LaytimeCalculator({ extractedData }: LaytimeCalculatorProps) {
                      <p className="text-xs text-muted-foreground">Operations completed ahead of schedule.</p>
                 </CardContent>
             </Card>
-            <Card className="border-red-500/50 bg-red-500/5">
+            <Card className="neumorphic-flat border-red-500/50">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium text-red-700 dark:text-red-400">Extra Time (Demurrage)</CardTitle>
                     <AlertCircle className="h-4 w-4 text-red-700 dark:text-red-400" />
@@ -164,7 +164,7 @@ export function LaytimeCalculator({ extractedData }: LaytimeCalculatorProps) {
             </Card>
         </div>
 
-        <Card>
+        <Card className="neumorphic-flat border-none">
           <CardHeader>
             <CardTitle>Laytime Event Breakdown</CardTitle>
             <CardDescription>
@@ -184,13 +184,16 @@ export function LaytimeCalculator({ extractedData }: LaytimeCalculatorProps) {
               </TableHeader>
               <TableBody>
                 {laytimeResult.laytimeEvents.map((event, index) => (
-                  <TableRow key={index}>
+                  <TableRow key={index} className="border-none">
                     <TableCell className="font-medium">{event.event}</TableCell>
                     <TableCell>{event.duration}</TableCell>
                     <TableCell className="text-center">
                       <Badge
                         variant={event.isCounted ? "default" : "secondary"}
-                        className={event.isCounted ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-500 hover:bg-gray-600"}
+                        className={cn(
+                            "text-white",
+                            event.isCounted ? "bg-blue-600" : "bg-gray-500"
+                        )}
                       >
                         {event.isCounted ? (
                           <CheckCircle2 className="h-4 w-4 mr-1" />
@@ -207,7 +210,7 @@ export function LaytimeCalculator({ extractedData }: LaytimeCalculatorProps) {
                           <TooltipTrigger asChild>
                             <HelpCircle className="h-4 w-4 ml-2 text-muted-foreground cursor-help" />
                           </TooltipTrigger>
-                          <TooltipContent>
+                          <TooltipContent className="neumorphic-flat">
                             <p>{event.reason}</p>
                           </TooltipContent>
                         </Tooltip>

@@ -12,7 +12,6 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { AnalyticsDashboard } from '@/components/analytics-dashboard';
 import { Button } from '@/components/ui/button';
 import { ExtractedEventsView } from '@/components/extracted-events-view';
-import { Card } from '@/components/ui/card';
 
 export default function Home() {
   const [extractedData, setExtractedData] = useState<ExtractPortOperationEventsOutput | null>(null);
@@ -31,10 +30,10 @@ export default function Home() {
       <main className="relative z-10 flex flex-col items-center p-4 md:p-8">
         <header className="w-full max-w-6xl flex items-center justify-between p-4 mb-4 md:mb-8">
           <div className="flex items-center gap-3">
-            <div className="bg-primary p-2 rounded-md shadow-md">
-              <Anchor className="h-6 w-6 text-primary-foreground" />
+            <div className="neumorphic-flat p-3 rounded-full">
+              <Anchor className="h-6 w-6 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold text-primary md:text-3xl">SOFA</h1>
+            <h1 className="text-2xl font-bold text-foreground/80 md:text-3xl">SOFA</h1>
           </div>
            <div className="flex items-center gap-4">
               <ThemeToggle />
@@ -43,11 +42,11 @@ export default function Home() {
 
         <div className="w-full max-w-6xl grid grid-cols-1 gap-8 flex-1">
             {!extractedData ? (
-                <Card className="bg-card/80 backdrop-blur-sm p-4 md:p-6 rounded-xl shadow-lg border border-border/20">
+                <div className="neumorphic-flat p-4 md:p-6 rounded-xl">
                     <SoFProcessor 
                         onDataExtracted={handleDataExtracted} 
                     />
-                </Card>
+                </div>
             ) : (
                 <div className="space-y-6">
                      <div className="flex items-center justify-between">
@@ -57,32 +56,32 @@ export default function Home() {
                                 Analysis dashboard for the processed Statement of Fact.
                             </p>
                         </div>
-                        <Button variant="outline" onClick={handleReset}>
+                        <Button variant="outline" onClick={handleReset} className="neumorphic-btn">
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Process New SoF
                         </Button>
                     </div>
 
                     <Tabs defaultValue="events" className="w-full">
-                        <TabsList className="grid w-full grid-cols-3 max-w-2xl mx-auto">
-                            <TabsTrigger value="events">Extracted Events</TabsTrigger>
-                            <TabsTrigger value="laytime">Laytime Analytics</TabsTrigger>
-                            <TabsTrigger value="timeline">Event Timeline</TabsTrigger>
+                        <TabsList className="grid w-full grid-cols-3 max-w-2xl mx-auto neumorphic-inset p-1 rounded-full">
+                            <TabsTrigger value="events" className="rounded-full">Extracted Events</TabsTrigger>
+                            <TabsTrigger value="laytime" className="rounded-full">Laytime Analytics</TabsTrigger>
+                            <TabsTrigger value="timeline" className="rounded-full">Event Timeline</TabsTrigger>
                         </TabsList>
-                        <TabsContent value="events">
-                            <Card className="bg-card/80 backdrop-blur-sm p-4 md:p-6 rounded-xl shadow-lg border border-border/20">
+                        <TabsContent value="events" className="mt-6">
+                             <div className="neumorphic-flat p-4 md:p-6 rounded-xl">
                                 <ExtractedEventsView extractedData={extractedData} />
-                            </Card>
+                            </div>
                         </TabsContent>
-                        <TabsContent value="laytime">
-                            <Card className="bg-card/80 backdrop-blur-sm p-4 md:p-6 rounded-xl shadow-lg border border-border/20">
+                        <TabsContent value="laytime" className="mt-6">
+                            <div className="neumorphic-flat p-4 md:p-6 rounded-xl">
                                 <LaytimeCalculator extractedData={extractedData} />
-                            </Card>
+                            </div>
                         </TabsContent>
-                        <TabsContent value="timeline">
-                            <Card className="bg-card/80 backdrop-blur-sm p-4 md:p-6 rounded-xl shadow-lg border border-border/20">
+                        <TabsContent value="timeline" className="mt-6">
+                             <div className="neumorphic-flat p-4 md:p-6 rounded-xl">
                                 <AnalyticsDashboard extractedData={extractedData} />
-                            </Card>
+                            </div>
                         </TabsContent>
                     </Tabs>
                 </div>

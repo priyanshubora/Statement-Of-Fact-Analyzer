@@ -115,7 +115,7 @@ export function SoFProcessor({ onDataExtracted }: SoFProcessorProps) {
       </CardHeader>
       <CardContent className="p-0 mt-6">
         <form onSubmit={handleSubmit} className="space-y-4">
-            <div {...getRootProps()} className={cn("relative flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-muted/20 hover:bg-muted/40 transition-colors", isDragActive && "border-primary bg-primary/10")}>
+            <div {...getRootProps()} className={cn("relative flex flex-col items-center justify-center w-full h-48 border-none rounded-lg cursor-pointer transition-colors neumorphic-inset", isDragActive && "shadow-inner-primary")}>
                 <input {...getInputProps()} />
                 <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center">
                     <UploadCloud className="w-10 h-10 mb-4 text-muted-foreground" />
@@ -131,7 +131,7 @@ export function SoFProcessor({ onDataExtracted }: SoFProcessorProps) {
             </div>
 
             {file && file.size > 0 ? (
-              <div className="flex items-center justify-between p-2 mt-2 text-sm rounded-md border bg-card">
+              <div className="flex items-center justify-between p-2 mt-2 text-sm rounded-md neumorphic-flat">
                 <div className="flex items-center gap-2 overflow-hidden">
                   <FileIcon className="h-5 w-5 text-muted-foreground shrink-0" />
                   <span className="font-medium truncate">{file.name}</span>
@@ -140,7 +140,7 @@ export function SoFProcessor({ onDataExtracted }: SoFProcessorProps) {
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 shrink-0"
+                  className="h-6 w-6 shrink-0 rounded-full neumorphic-btn"
                   onClick={handleClear}
                 >
                   <X className="h-4 w-4" />
@@ -148,7 +148,7 @@ export function SoFProcessor({ onDataExtracted }: SoFProcessorProps) {
               </div>
             ) : null}
 
-            <Button type="submit" disabled={isSubmitting || !file} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+            <Button type="submit" disabled={isSubmitting || !file} className="w-full neumorphic-btn !text-primary-foreground bg-primary hover:bg-primary/90">
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isSubmitting ? 'Extracting Events...' : 'Process Statement of Fact'}
             </Button>

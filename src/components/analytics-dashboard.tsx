@@ -2,7 +2,7 @@
 "use client"
 
 import * as React from "react"
-import { Bar, BarChart, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from "recharts"
+import { Bar, BarChart, XAxis, YAxis, Tooltip, Legend, CartesianGrid, Cell } from "recharts"
 import { parseISO, differenceInHours, format } from 'date-fns';
 
 import {
@@ -73,7 +73,7 @@ export function AnalyticsDashboard({ extractedData }: AnalyticsDashboardProps) {
   
   if (!chartData || chartData.length === 0) {
     return (
-       <Alert>
+       <Alert className="neumorphic-flat">
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>No Data</AlertTitle>
         <AlertDescription>
@@ -94,7 +94,7 @@ export function AnalyticsDashboard({ extractedData }: AnalyticsDashboardProps) {
             A Gantt-style visualization of all port operation events over time.
           </CardDescription>
         </CardHeader>
-        <Card>
+        <Card className="neumorphic-flat border-none">
             <CardContent className="pt-6">
                 <ChartContainer config={chartConfig} className="w-full h-[500px]">
                     <BarChart
@@ -112,7 +112,7 @@ export function AnalyticsDashboard({ extractedData }: AnalyticsDashboardProps) {
                                 if (active && payload && payload.length) {
                                     const data = payload[0].payload;
                                     return (
-                                        <div className="rounded-lg border bg-background p-2 shadow-sm">
+                                        <div className="rounded-lg border bg-background p-2 shadow-neumorphic-flat">
                                             <div className="grid grid-cols-1 gap-2">
                                                 <div className="flex flex-col">
                                                     <span className="text-[0.70rem] uppercase text-muted-foreground" style={{color: data.fill}}>{data.category}</span>
@@ -143,7 +143,7 @@ export function AnalyticsDashboard({ extractedData }: AnalyticsDashboardProps) {
                         }} />
                          <Bar dataKey="time" name="Event" barSize={20} radius={[4, 4, 4, 4]}>
                             {chartData.map((entry, index) => (
-                                 <YAxis key={`cell-${index}`} fill={entry.fill} />
+                                 <Cell key={`cell-${index}`} fill={entry.fill} />
                             ))}
                         </Bar>
                     </BarChart>
