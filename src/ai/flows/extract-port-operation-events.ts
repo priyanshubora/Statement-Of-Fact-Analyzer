@@ -1,8 +1,9 @@
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow for extracting port operation events from Statements of Fact (SoFs).
+ * It also calculates laytime and summarizes the events in a single operation.
  *
- * - extractPortOperationEvents - A function that takes the content of an SoF and returns structured data.
+ * - extractPortOperationEvents - A function that takes the content of an SoF and returns structured data, laytime calculations, and a summary.
  * - ExtractPortOperationEventsInput - The input type for the extractPortOperationEvents function.
  * - ExtractPortOperationEventsOutput - The return type for the extractPortOperationEvents function.
  */
@@ -14,6 +15,20 @@ const ExtractPortOperationEventsInputSchema = z.object({
   sofContent: z.string().describe("The text content of the Statement of Fact file."),
 });
 export type ExtractPortOperationEventsInput = z.infer<typeof ExtractPortOperationEventsInputSchema>;
+
+const LaytimeCalculationSchema = z.object({
+  totalLaytime: z.string().describe('The total calculated laytime in a human-readable format (e.g., "2 days, 4 hours, 30 minutes").'),
+  allowedLaytime: z.string().describe('The standard allowed laytime based on contract (default or specified).'),
+  timeSaved: z.string().describe('Time saved if operations finished before allowed laytime expired.'),
+  demurrage: z.string().describe('Extra time taken beyond the allowed laytime.'),
+  laytimeEvents: z.array(z.object({
+    event: z.string(),
+    duration: z.string(),
+    isCounted: z.boolean().describe('Whether this event duration counts towards the total laytime.'),
+    reason: z.string().optional().describe('Reason why the event is or is not counted towards laytime.'),
+  })).describe('A breakdown of each event and whether it contributed to the laytime.'),
+});
+export type LaytimeCalculation = z.infer<typeof LaytimeCalculationSchema>;
 
 const ExtractPortOperationEventsOutputSchema = z.object({
   vesselName: z.string().describe("The name of the vessel mentioned in the SoF."),
@@ -28,6 +43,8 @@ const ExtractPortOperationEventsOutputSchema = z.object({
       remark: z.string().optional().describe('Any additional notes, comments or details about the event from the SoF.')
     })
   ).describe('An array of port operation events with their start and end times.'),
+  laytimeCalculation: LaytimeCalculationSchema.describe('The detailed laytime calculation results.'),
+  eventsSummary: z.string().describe('A concise, bulleted summary of the key insights from the port events.'),
 });
 export type ExtractPortOperationEventsOutput = z.infer<typeof ExtractPortOperationEventsOutputSchema>;
 
@@ -39,28 +56,17 @@ const extractPortOperationEventsPrompt = ai.definePrompt({
   name: 'extractPortOperationEventsPrompt',
   input: {schema: ExtractPortOperationEventsInputSchema},
   output: {schema: ExtractPortOperationEventsOutputSchema},
-  prompt: `You are an AI assistant specializing in maritime logistics and data extraction from Statements of Fact (SoFs).
+  prompt: `You are an AI assistant specializing in maritime logistics, data extraction, and analysis from Statements of Fact (SoFs).
 
-Your task is to meticulously analyze the text content of the SoF provided and extract the vessel name and all port operation events. You must structure the output accurately into a JSON format.
-
-First, identify the vessel name from the document.
-
-Then, identify each distinct event and its details. Pay close attention to the following critical event types if they are present:
-- **Arrival at Anchorage**: The exact moment the ship arrives at the designated waiting area.
-- **Notice of Readiness (NOR) Tendered**: The exact date and time the ship's captain declares readiness for cargo operations.
-- **Pilot on Board**: The time a local port pilot boards to guide the vessel.
-- **Arrival at Berth**: The exact time the ship is securely moored at the dock.
-- **Commencement of Cargo Operations**: The time loading or unloading begins.
-- **Interruption of Operations**: Any stoppage in work. For each interruption, you must capture the reason (e.g., "rain delay," "equipment failure," "strike"), and its start and end times.
-- **Completion of Cargo Operations**: The time loading or unloading is finished.
-- **Departure from Berth**: The time the ship leaves the dock.
-
-For each event, determine its category (e.g., 'Arrival', 'Cargo Operations', 'Delays', 'Departure'), its precise start and end times (in YYYY-MM-DD HH:MM format), calculate the duration, determine its status, and include any relevant remarks.
+Your task is to perform three steps in one operation:
+1.  **Extract Data**: Meticulously analyze the text content of the SoF provided. Extract the vessel name and all port operation events. Capture critical events like 'Arrival at Anchorage', 'NOR Tendered', 'Pilot on Board', 'Arrival at Berth', 'Commencement/Completion of Cargo Operations', and any interruptions with reasons. For each event, determine its category, times, duration, status, and remarks.
+2.  **Calculate Laytime**: Based on the extracted events, perform a laytime calculation. Assume a standard allowed laytime of "3 days". Determine which events count towards laytime (e.g., cargo operations) and which do not (e.g., weather delays). Calculate total laytime used, time saved (despatch), and extra time (demurrage). Provide a breakdown for each event.
+3.  **Summarize Key Insights**: Provide a concise, bulleted summary of the key insights. Focus on total time in port, cargo operation duration, and any significant delays.
 
 SoF Content:
 {{{sofContent}}}
 
-Extract the vessel name and all events, returning them in the specified JSON format. If a specific event type from the list above is not mentioned in the document, do not include it. Ensure every event that is mentioned is captured.`,
+Return all three parts—the extracted events, the laytime calculation, and the summary—in the specified JSON format.`,
 });
 
 const extractPortOperationEventsFlow = ai.defineFlow(

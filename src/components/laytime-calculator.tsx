@@ -1,13 +1,9 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
 import {
-  calculateLaytime,
-  type CalculateLaytimeInput,
-  type CalculateLaytimeOutput,
-} from "@/ai/flows/calculate-laytime";
-import type { ExtractPortOperationEventsOutput } from "@/ai/flows/extract-port-operation-events";
+  type LaytimeCalculation,
+} from "@/ai/flows/extract-port-operation-events";
 import {
   Card,
   CardContent,
@@ -24,7 +20,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  Loader2,
   AlertCircle,
   Calculator,
   CheckCircle2,
@@ -35,74 +30,25 @@ import {
   Hourglass,
 } from "lucide-react";
 import { Badge } from "./ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
+import { cn } from "@/lib/utils";
 
 interface LaytimeCalculatorProps {
-  extractedData: ExtractPortOperationEventsOutput;
+  laytimeResult: LaytimeCalculation | null;
 }
 
-export function LaytimeCalculator({ extractedData }: LaytimeCalculatorProps) {
-  const [laytimeResult, setLaytimeResult] =
-    useState<CalculateLaytimeOutput | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (extractedData?.events) {
-      setIsLoading(true);
-      setError(null);
-      calculateLaytime({ events: extractedData.events } as CalculateLaytimeInput)
-        .then((result) => {
-          if (result) {
-            setLaytimeResult(result);
-          } else {
-            throw new Error("The laytime calculation returned an empty result.");
-          }
-        })
-        .catch((e) => {
-          console.error(e);
-          setError(
-            e.message || "An unexpected error occurred during laytime calculation."
-          );
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }
-  }, [extractedData]);
-
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-96 gap-4">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="text-muted-foreground">
-          Calculating laytime based on event data...
-        </p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <Alert variant="destructive" className="neumorphic-flat">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Calculation Failed</AlertTitle>
-        <AlertDescription>{error}</AlertDescription>
-      </Alert>
-    );
-  }
-
+export function LaytimeCalculator({ laytimeResult }: LaytimeCalculatorProps) {
   if (!laytimeResult) {
     return (
       <div className="flex flex-col items-center justify-center h-96 gap-4 neumorphic-flat">
         <AlertCircle className="h-12 w-12 text-muted-foreground" />
         <p className="text-muted-foreground">No laytime data available.</p>
+        <p className="text-xs text-center text-muted-foreground max-w-sm">This may happen if the AI could not reliably calculate laytime from the provided document.</p>
       </div>
     );
   }

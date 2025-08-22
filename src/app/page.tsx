@@ -75,7 +75,7 @@ export default function Home() {
                         </TabsContent>
                         <TabsContent value="laytime" className="mt-6">
                             <div className="neumorphic-flat p-4 md:p-6 rounded-xl">
-                                <LaytimeCalculator extractedData={extractedData} />
+                                <LaytimeCalculator laytimeResult={extractedData.laytimeCalculation} />
                             </div>
                         </TabsContent>
                         <TabsContent value="timeline" className="mt-6">

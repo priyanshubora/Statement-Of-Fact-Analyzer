@@ -3,7 +3,6 @@
 
 import { useState, useRef, useEffect } from "react";
 import { guideNewUsers } from "@/ai/flows/guide-new-users";
-import { summarizePortEvents, type SummarizePortEventsInput } from "@/ai/flows/summarize-port-events";
 import type { ExtractPortOperationEventsOutput } from "@/ai/flows/extract-port-operation-events";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +10,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Send, Bot, User, Loader2, Sparkles, MessageSquare } from "lucide-react";
-import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
 
 interface Message {
@@ -56,24 +54,10 @@ export function FloatingAiAssistant({ extractedData }: FloatingAiAssistantProps)
   }, [isOpen]);
 
   useEffect(() => {
-    if (extractedData) {
-      setIsLoading(true);
-      summarizePortEvents({ events: extractedData.events } as SummarizePortEventsInput)
-        .then(result => {
-          if (result && result.summary) {
-            const insightMessage: Message = { role: "assistant", content: `Here are some insights for **${extractedData.vesselName}**:\n\n${result.summary}` };
-            setMessages(prev => [...prev, insightMessage]);
-            setHasNewInsight(true);
-          }
-        })
-        .catch(error => {
-          console.error(error);
-          const errorMessage: Message = { role: "assistant", content: "Sorry, I had trouble analyzing the vessel's events. Please try again." };
-          setMessages((prev) => [...prev, errorMessage]);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
+    if (extractedData?.eventsSummary) {
+        const insightMessage: Message = { role: "assistant", content: `Here are some insights for **${extractedData.vesselName}**:\n\n${extractedData.eventsSummary}` };
+        setMessages(prev => [...prev, insightMessage]);
+        setHasNewInsight(true);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [extractedData]);
@@ -136,7 +120,7 @@ export function FloatingAiAssistant({ extractedData }: FloatingAiAssistantProps)
                         </Avatar>
                         )}
                         <div className={`rounded-lg px-4 py-2 max-w-[85%] whitespace-pre-wrap ${message.role === 'user' ? 'neumorphic-flat bg-primary text-primary-foreground' : 'neumorphic-flat'}`}>
-                          <div className="p-0 text-sm" dangerouslySetInnerHTML={{ __html: message.content.replace(/\n/g, '<br />') }} />
+                          <div className="p-0 text-sm" dangerouslySetInnerHTML={{ __html: message.content.replace(/\\n/g, '<br />').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
                         </div>
                         {message.role === 'user' && (
                         <Avatar className="h-8 w-8 neumorphic-flat p-0.5">
