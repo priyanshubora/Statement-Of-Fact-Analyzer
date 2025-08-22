@@ -56,17 +56,16 @@ const extractPortOperationEventsPrompt = ai.definePrompt({
   name: 'extractPortOperationEventsPrompt',
   input: {schema: ExtractPortOperationEventsInputSchema},
   output: {schema: ExtractPortOperationEventsOutputSchema},
-  prompt: `You are an AI assistant specializing in maritime logistics, data extraction, and analysis from Statements of Fact (SoFs).
+  prompt: `You are an expert maritime logistics AI. Analyze the provided Statement of Fact (SoF) and perform the following three tasks in a single response:
 
-Your task is to perform three steps in one operation:
-1.  **Extract Data**: Meticulously analyze the text content of the SoF provided. Extract the vessel name and all port operation events. Capture critical events like 'Arrival at Anchorage', 'NOR Tendered', 'Pilot on Board', 'Arrival at Berth', 'Commencement/Completion of Cargo Operations', and any interruptions with reasons. For each event, determine its category, times, duration, status, and remarks.
-2.  **Calculate Laytime**: Based on the extracted events, perform a laytime calculation. Assume a standard allowed laytime of "3 days". Determine which events count towards laytime (e.g., cargo operations) and which do not (e.g., weather delays). Calculate total laytime used, time saved (despatch), and extra time (demurrage). Provide a breakdown for each event.
-3.  **Summarize Key Insights**: Provide a concise, bulleted summary of the key insights. Focus on total time in port, cargo operation duration, and any significant delays.
+1.  **Extract Events**: Identify the vessel name and all significant port operation events. For each event, extract the event title, category, start and end times (YYYY-MM-DD HH:MM), duration, status, and any remarks.
+2.  **Calculate Laytime**: Perform a laytime calculation. Assume a standard allowed laytime of "3 days". Calculate the total laytime used, time saved (despatch), and extra time (demurrage). Detail which events count towards laytime and why.
+3.  **Summarize Insights**: Provide a brief, bullet-point summary highlighting total port time, cargo operation duration, and major delays.
+
+Process the following SoF content and return the full analysis in the required JSON format.
 
 SoF Content:
-{{{sofContent}}}
-
-Return all three parts—the extracted events, the laytime calculation, and the summary—in the specified JSON format.`,
+{{{sofContent}}}`,
 });
 
 const extractPortOperationEventsFlow = ai.defineFlow(
