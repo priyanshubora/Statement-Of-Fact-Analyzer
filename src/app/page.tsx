@@ -45,7 +45,7 @@ export default function Home() {
 
         <div className="w-full max-w-7xl grid grid-cols-1 gap-8 flex-1">
             {!extractedData ? (
-                <div className="max-w-xl mx-auto w-full p-4 md:p-6 rounded-lg neumorphic-outset bg-card">
+                <div className="max-w-xl mx-auto w-full p-4 md:p-6 rounded-lg neumorphic-outset">
                     <SoFProcessor 
                         onDataExtracted={handleDataExtracted} 
                     />
@@ -72,19 +72,19 @@ export default function Home() {
                             <TabsTrigger value="timeline" className="data-[state=active]:neumorphic-outset data-[state=active]:text-primary data-[state=active]:shadow-none rounded-md">Event Timeline</TabsTrigger>
                         </TabsList>
                         <TabsContent value="events" className="mt-6">
-                            <Card className="p-4 md:p-6 neumorphic-outset rounded-lg bg-card">
+                            <div className="p-4 md:p-6 neumorphic-outset rounded-lg">
                                 <ExtractedEventsView extractedData={extractedData} />
-                            </Card>
+                            </div>
                         </TabsContent>
                         <TabsContent value="laytime" className="mt-6">
-                            <Card className="p-4 md:p-6 neumorphic-outset rounded-lg bg-card">
+                            <div className="p-4 md:p-6 neumorphic-outset rounded-lg">
                                 <LaytimeCalculator laytimeResult={extractedData.laytimeCalculation} />
-                            </Card>
+                            </div>
                         </TabsContent>
                         <TabsContent value="timeline" className="mt-6">
-                             <Card className="p-4 md:p-6 neumorphic-outset rounded-lg bg-card">
+                             <div className="p-4 md:p-6 neumorphic-outset rounded-lg">
                                 <AnalyticsDashboard extractedData={extractedData} />
-                            </Card>
+                            </div>
                         </TabsContent>
                     </Tabs>
                 </div>
