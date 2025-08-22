@@ -2,7 +2,7 @@
 "use client"
 
 import * as React from "react"
-import { Bar, BarChart, XAxis, YAxis, Tooltip, Legend, CartesianGrid, Cell } from "recharts"
+import { Bar, BarChart, XAxis, YAxis, Tooltip, Legend, CartesianGrid, Cell, ResponsiveContainer } from "recharts"
 import { parseISO, differenceInHours, format } from 'date-fns';
 
 import {
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card"
 import {
   ChartContainer,
+  ChartTooltipContent,
 } from "@/components/ui/chart"
 import type { ExtractPortOperationEventsOutput } from "@/ai/flows/extract-port-operation-events";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
@@ -73,7 +74,7 @@ export function AnalyticsDashboard({ extractedData }: AnalyticsDashboardProps) {
   
   if (!chartData || chartData.length === 0) {
     return (
-       <Alert className="neumorphic-flat">
+       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>No Data</AlertTitle>
         <AlertDescription>
@@ -94,7 +95,7 @@ export function AnalyticsDashboard({ extractedData }: AnalyticsDashboardProps) {
             A Gantt-style visualization of all port operation events over time.
           </CardDescription>
         </CardHeader>
-        <Card className="neumorphic-flat border-none">
+        <Card className="border-none shadow-none">
             <CardContent className="pt-6">
                 <ChartContainer config={chartConfig} className="w-full h-[500px]">
                     <BarChart
@@ -112,7 +113,7 @@ export function AnalyticsDashboard({ extractedData }: AnalyticsDashboardProps) {
                                 if (active && payload && payload.length) {
                                     const data = payload[0].payload;
                                     return (
-                                        <div className="rounded-lg border bg-background p-2 shadow-neumorphic-flat">
+                                        <div className="rounded-lg border bg-background p-2 shadow-sm">
                                             <div className="grid grid-cols-1 gap-2">
                                                 <div className="flex flex-col">
                                                     <span className="text-[0.70rem] uppercase text-muted-foreground" style={{color: data.fill}}>{data.category}</span>

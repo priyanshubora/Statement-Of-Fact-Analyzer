@@ -22,6 +22,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./
 import { useMemo } from "react";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
+import { Badge } from "./ui/badge";
 
 interface ExtractedEventsViewProps {
   extractedData: ExtractPortOperationEventsOutput;
@@ -54,7 +55,7 @@ export function ExtractedEventsView({ extractedData }: ExtractedEventsViewProps)
 
   if (!extractedData || extractedData.events.length === 0) {
     return (
-      <Card className="neumorphic-flat border-none">
+      <Card>
         <CardHeader>
           <CardTitle>No Events Found</CardTitle>
           <CardDescription>Could not find any events in the provided document.</CardDescription>
@@ -73,28 +74,28 @@ export function ExtractedEventsView({ extractedData }: ExtractedEventsViewProps)
                     The complete list of events and remarks extracted from the Statement of Fact.
                   </CardDescription>
               </div>
-              <Button variant="outline" size="sm" onClick={downloadJSON} className="neumorphic-btn">
+              <Button variant="outline" size="sm" onClick={downloadJSON}>
                   <Download className="mr-2 h-4 w-4" />
                   Download JSON
               </Button>
           </div>
         </CardHeader>
-        <Card className="neumorphic-flat border-none">
+        <Card className="border-none shadow-none">
           <CardContent className="p-0">
             <Accordion type="multiple" defaultValue={Object.keys(groupedEvents)} className="w-full">
               {Object.entries(groupedEvents).map(([category, events]) => (
-                <AccordionItem value={category} key={category} className="border-b-0">
-                  <AccordionTrigger className="text-lg font-semibold text-primary/90 hover:no-underline border-b px-6 py-4">
+                <AccordionItem value={category} key={category}>
+                  <AccordionTrigger className="text-lg font-semibold text-primary/90 hover:no-underline px-1 py-4">
                     <div className="flex items-center gap-2">
                         <span>{category}</span>
-                        <div className="neumorphic-flat text-xs px-2.5 py-0.5 rounded-full">{events.length}</div>
+                        <Badge variant="secondary">{events.length}</Badge>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="p-0">
                     <div className="overflow-auto">
                         <Table>
                             <TableHeader>
-                                <TableRow className="border-none">
+                                <TableRow>
                                 <TableHead>Event</TableHead>
                                 <TableHead>Start Time</TableHead>
                                 <TableHead>End Time</TableHead>
@@ -105,12 +106,12 @@ export function ExtractedEventsView({ extractedData }: ExtractedEventsViewProps)
                             </TableHeader>
                             <TableBody>
                                 {events.map((event, index) => (
-                                <TableRow key={index} className="border-none">
+                                <TableRow key={index}>
                                     <TableCell className="font-medium">{event.event}</TableCell>
                                     <TableCell>{event.startTime}</TableCell>
                                     <TableCell>{event.endTime}</TableCell>
                                     <TableCell>{event.duration}</TableCell>
-                                    <TableCell><div className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold", event.status === 'Completed' ? 'neumorphic-flat bg-green-500/20 text-green-700' : 'neumorphic-flat bg-red-500/20 text-red-700')}>{event.status}</div></TableCell>
+                                    <TableCell><Badge variant={event.status === 'Completed' ? 'default' : 'destructive'} className={cn(event.status === 'Completed' && "bg-green-600")}>{event.status}</Badge></TableCell>
                                     <TableCell>{event.remark}</TableCell>
                                 </TableRow>
                                 ))}

@@ -64,10 +64,6 @@ export default {
           ring: 'hsl(var(--sidebar-ring))',
         },
       },
-      boxShadow: {
-        'neumorphic-flat': '8px 8px 16px hsl(var(--dark-shadow)), -8px -8px 16px hsl(var(--light-shadow))',
-        'neumorphic-inset': 'inset 8px 8px 16px hsl(var(--dark-shadow)), inset -8px -8px 16px hsl(var(--light-shadow))',
-      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',

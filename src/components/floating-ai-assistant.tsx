@@ -32,20 +32,23 @@ export function FloatingAiAssistant({ extractedData }: FloatingAiAssistantProps)
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const scrollAreaViewportRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    if (scrollAreaViewportRef.current) {
-        scrollAreaViewportRef.current.scrollTo({
-            top: scrollAreaViewportRef.current.scrollHeight,
-            behavior: "smooth"
-        });
+    if (scrollAreaRef.current) {
+        const scrollableNode = scrollAreaRef.current.querySelector('div[data-radix-scroll-area-viewport]');
+        if (scrollableNode) {
+            scrollableNode.scrollTo({
+                top: scrollableNode.scrollHeight,
+                behavior: "smooth"
+            });
+        }
     }
   };
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, isLoading]);
   
   useEffect(() => {
     if (isOpen) {
@@ -94,12 +97,12 @@ export function FloatingAiAssistant({ extractedData }: FloatingAiAssistantProps)
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground z-20 neumorphic-btn !shadow-neumorphic-flat">
+        <Button variant="default" className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-20">
             <MessageSquare size={32} />
             {hasNewInsight && <Badge color="yellow" className="absolute -top-1 -right-1 bg-accent text-accent-foreground"><Sparkles className="h-4 w-4" /></Badge>}
         </Button>
       </SheetTrigger>
-      <SheetContent className="flex flex-col p-0 w-full max-w-md neumorphic-flat border-none">
+      <SheetContent className="flex flex-col p-0 w-full max-w-md">
         <SheetHeader className="p-4 border-b">
           <SheetTitle className="flex items-center gap-2">
             <Bot className="h-6 w-6 text-primary" />
@@ -110,20 +113,20 @@ export function FloatingAiAssistant({ extractedData }: FloatingAiAssistantProps)
           </SheetDescription>
         </SheetHeader>
         <div className="flex-1 flex flex-col gap-4 overflow-hidden">
-            <ScrollArea className="flex-1 p-4" ref={scrollAreaViewportRef}>
+            <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
                 <div className="space-y-4">
                     {messages.map((message, index) => (
                     <div key={index} className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : ''}`}>
                         {message.role === 'assistant' && (
-                        <Avatar className="h-8 w-8 neumorphic-flat p-0.5">
+                        <Avatar className="h-8 w-8 border">
                             <AvatarFallback className="bg-primary text-primary-foreground"><Bot size={20}/></AvatarFallback>
                         </Avatar>
                         )}
-                        <div className={`rounded-lg px-4 py-2 max-w-[85%] whitespace-pre-wrap ${message.role === 'user' ? 'neumorphic-flat bg-primary text-primary-foreground' : 'neumorphic-flat'}`}>
+                        <div className={`rounded-lg px-4 py-2 max-w-[85%] whitespace-pre-wrap ${message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
                           <div className="p-0 text-sm" dangerouslySetInnerHTML={{ __html: message.content.replace(/\\n/g, '<br />').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
                         </div>
                         {message.role === 'user' && (
-                        <Avatar className="h-8 w-8 neumorphic-flat p-0.5">
+                        <Avatar className="h-8 w-8 border">
                             <AvatarFallback><User size={20}/></AvatarFallback>
                         </Avatar>
                         )}
@@ -131,17 +134,17 @@ export function FloatingAiAssistant({ extractedData }: FloatingAiAssistantProps)
                     ))}
                     {isLoading && (
                         <div className="flex items-start gap-3">
-                            <Avatar className="h-8 w-8 neumorphic-flat p-0.5">
+                            <Avatar className="h-8 w-8 border">
                                 <AvatarFallback className="bg-primary text-primary-foreground"><Bot size={20}/></AvatarFallback>
                             </Avatar>
-                            <div className="rounded-lg px-4 py-2 neumorphic-flat flex items-center justify-center">
+                            <div className="rounded-lg px-4 py-2 bg-muted flex items-center justify-center">
                                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                             </div>
                         </div>
                     )}
                 </div>
             </ScrollArea>
-            <div className="p-4 border-t neumorphic-inset">
+            <div className="p-4 border-t bg-background">
                 <form onSubmit={handleSendMessage} className="flex items-center gap-2">
                 <Input
                     value={input}
@@ -149,9 +152,8 @@ export function FloatingAiAssistant({ extractedData }: FloatingAiAssistantProps)
                     placeholder="e.g., Explain the delays"
                     disabled={isLoading}
                     autoComplete="off"
-                    className="neumorphic-inset border-none"
                 />
-                <Button type="submit" size="icon" disabled={isLoading || !input.trim()} className="bg-accent hover:bg-accent/90 shrink-0 neumorphic-btn">
+                <Button type="submit" size="icon" disabled={isLoading || !input.trim()} className="bg-accent hover:bg-accent/90 shrink-0">
                     <Send className="h-4 w-4 text-accent-foreground" />
                 </Button>
                 </form>
