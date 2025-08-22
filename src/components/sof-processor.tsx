@@ -89,11 +89,11 @@ export function SoFProcessor({ onDataExtracted }: SoFProcessorProps) {
       const e = error as Error;
       console.error(e);
 
-      if (e.message && (e.message.includes('429') || e.message.includes('Too Many Requests'))) {
+      if (e.message && (e.message.includes('429') || e.message.includes('Too Many Requests') || e.message.includes('exceeded your current quota'))) {
          toast({
             variant: "destructive",
             title: "API Quota Exceeded",
-            description: "You have exceeded your daily limit for the Google AI free tier. Please try again tomorrow or check your plan details.",
+            description: "You have exceeded your daily/minute limit. Please ensure you are using a Gemini Pro API key and that billing is enabled in your Google Cloud project.",
          });
       } else {
         toast({
