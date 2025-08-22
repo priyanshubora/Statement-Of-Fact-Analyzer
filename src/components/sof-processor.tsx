@@ -88,11 +88,20 @@ export function SoFProcessor({ onDataExtracted }: SoFProcessorProps) {
     } catch (error) {
       const e = error as Error;
       console.error(e);
-      toast({
-        variant: "destructive",
-        title: "Extraction Failed",
-        description: e.message || "Could not extract events. Please check the file and try again.",
-      });
+
+      if (e.message && (e.message.includes('429') || e.message.includes('Too Many Requests'))) {
+         toast({
+            variant: "destructive",
+            title: "API Quota Exceeded",
+            description: "You have exceeded your daily limit for the Google AI free tier. Please try again tomorrow or check your plan details.",
+         });
+      } else {
+        toast({
+            variant: "destructive",
+            title: "Extraction Failed",
+            description: e.message || "Could not extract events. Please check the file and try again.",
+        });
+      }
     } finally {
         setIsSubmitting(false);
     }
