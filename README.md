@@ -4,7 +4,7 @@ The project aims to automate the extraction, analysis, and calculation of laytim
  - Deployment Url : https://statement-of-fact-analyzer.vercel.app/
 
 
-- Demo Video: (Will be added later)
+- Demo Video: https://youtu.be/LAIMlEzrhxg
 
 - Repository Link : https://github.com/priyanshubora/Statement-Of-Fact-Analyzer
 # Team Name: SMURFS
