@@ -67,6 +67,6 @@ npm run dev
 
 
 ### Access the App
-Open your browser and go to:
+Open your browser and go to->
 http://localhost:3000
 
